@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block content %}
+<h3>{{ 'Edit Learner' if learner else 'Add Learner' }} - {{ college.institute_name }}</h3>
+<div class="alert alert-info">Institute, State, District are selected from backend configuration: <strong>{{ college.institute_name }}</strong>, {{ college.state }}, {{ college.district }}</div>
+<form method="post" class="card card-body">
+  <div class="row g-3">
+  {% for col in columns %}
+    <div class="col-md-4">
+      <label class="form-label">{{ col.replace('_',' ').title() }} {% if col in ['mobile_no','email_id'] %}<span class="text-danger">*</span>{% endif %}</label>
+      <input name="{{ col }}" value="{{ (learner|attr(col)) if learner else '' }}" class="form-control" {% if col in ['mobile_no','email_id'] %}required{% endif %}>
+    </div>
+  {% endfor %}
+  </div>
+  <button class="btn btn-primary mt-4">Save</button>
+</form>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% include "learners/partials/employed_fields.html" %}
+
+<div class="row mb-3">
+  <div class="col-md-6">
+    <label class="form-label">Duration of Apprenticeship in Months</label>
+    <input type="number" name="apprenticeship_duration_months" class="form-control"
+           value="{{ learner.apprenticeship_duration_months if learner else '' }}">
+  </div>
+
+  <div class="col-md-6">
+    <label class="form-label">Did you register on National Apprenticeship Portal?</label>
+    <select name="registered_on_apprenticeship_portal" class="form-select">
+      <option value="">-- Select --</option>
+      {% for opt in dropdowns.registered_on_apprenticeship_portal %}
+        <option value="{{ opt.option_value }}" {% if learner and learner.registered_on_apprenticeship_portal == opt.option_value %}selected{% endif %}>
+          {{ opt.option_label or opt.option_value }}
+        </option>
+      {% endfor %}
+    </select>
+  </div>
+</div>

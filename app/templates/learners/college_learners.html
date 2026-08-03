@@ -1,0 +1,210 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h3>Learners - {{ college.institute_name }}</h3>
+    <p class="text-muted mb-0">
+      State: {{ college.state }} |
+      District: {{ college.district }} |
+      College Code: {{ college.college_code or "-" }}
+    </p>
+  </div>
+
+  <div>
+    {% if permission.can_add and not current_user.has_role("placement") %}
+      <a href="{{ url_for('learners.add_learner', college_id=college.id) }}"
+         class="btn btn-primary">
+        Single Add
+      </a>
+    {% endif %}
+    
+    {% if permission.can_add and (current_user.has_role('admin') or current_user.has_role('enrolment')) %}
+      <a href="{{ url_for('learners.bulk_upload', college_id=college.id) }}"
+        class="btn btn-outline-primary">
+        Bulk Upload
+      </a>
+    {% endif %}
+
+    {% if current_user.has_role("placement") %}
+      <a href="{{ url_for('learners.placement_bulk_update', college_id=college.id) }}"
+        class="btn btn-outline-success">
+        Bulk Update Placement
+      </a>
+    {% endif %}
+
+    <a href="{{ url_for('learners.select_college') }}" class="btn btn-secondary">
+      Back
+    </a>
+  </div>
+</div>
+
+<div class="card mb-3">
+  <div class="card-body">
+
+<form method="GET" class="card card-body mb-3">
+
+  <div class="row g-2 align-items-end">
+
+    <div class="col-md-3">
+      <label class="form-label">Search</label>
+      <input type="text"
+             name="search"
+             class="form-control"
+             placeholder="Name / Email / Mobile"
+             value="{{ search or '' }}">
+    </div>
+
+
+    <div class="col-md-3">
+      <label class="form-label">Batch Start Year</label>
+      <input type="number"
+             name="batch_start_year"
+             class="form-control"
+             placeholder="YYYY"
+             value="{{ selected_batch_start_year or '' }}">
+    </div>
+
+    <div class="col-md-3">
+      <label class="form-label">Batch End Year</label>
+      <input type="number"
+             name="batch_end_year"
+             class="form-control"
+             placeholder="YYYY"
+             value="{{ selected_batch_end_year or '' }}">
+    </div>
+
+    <div class="col-md-3">
+      <label class="form-label">Trade/Course</label>
+      <select name="trade_course" class="form-select">
+        <option value="">All</option>
+        {% for opt in trade_courses %}
+          <option value="{{ opt.option_value }}"
+            {% if selected_trade_course == opt.option_value %}selected{% endif %}>
+            {{ opt.option_label or opt.option_value }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+  </div>
+
+  <div class="row g-2 align-items-end mt-2">
+
+    <div class="col-md-3">
+      <label class="form-label">Course Completion Status</label>
+      <select name="course_completion_status" class="form-select">
+        <option value="">All</option>
+        {% for opt in course_statuses %}
+          <option value="{{ opt.option_value }}"
+            {% if selected_course_completion_status == opt.option_value %}selected{% endif %}>
+            {{ opt.option_label or opt.option_value }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="col-md-3">
+      <label class="form-label">Sector</label>
+      <select name="sector" class="form-select">
+        <option value="">All</option>
+        {% for opt in sectors %}
+          <option value="{{ opt.option_value }}"
+            {% if selected_sector == opt.option_value %}selected{% endif %}>
+            {{ opt.option_label or opt.option_value }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="col-md-2">
+      <button type="submit" class="btn btn-primary w-100">
+        Search
+      </button>
+    </div>
+
+    <div class="col-md-2">
+      <a href="{{ url_for('learners.college_learners', college_id=college.id) }}"
+         class="btn btn-secondary w-100">
+        Clear
+      </a>
+    </div>
+
+  </div>
+
+</form>
+
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-body">
+
+    {% if learners %}
+      <div class="table-responsive">
+        <table class="table table-bordered table-striped align-middle">
+          <thead>
+            <tr>
+              <th>Mobile No</th>
+              <th>Email Id</th>
+              <th>Name</th>
+              <th>Gender</th>
+              <th>Trade/Course</th>
+              <th>Course Status</th>
+              <th>Batch Start Year</th>
+              <th>Batch End Year</th>
+              
+              <th style="width: 180px;">Action</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {% for l in learners %}
+              <tr>
+                <td>{{ l.mobile_no or "-" }}</td>
+                <td>{{ l.email_id or "-" }}</td>
+                <td>
+                  {{ l.first_name or "" }}
+                  {{ l.last_name or "" }}
+                </td>
+                <td>{{ l.gender or "-" }}</td>
+                <td>{{ l.trade_course or "-" }}</td>
+                <td>{{ l.course_completion_status or "-" }}</td>
+                <td>{{ l.batch_start_year or "-" }}</td>
+                <td>{{ l.batch_end_year or "-" }}</td>
+
+
+                <td>
+                  {% if permission.can_edit %}
+                    <a href="{{ url_for('learners.edit_learner', college_id=college.id, learner_id=l.id) }}"
+                       class="btn btn-sm btn-outline-primary">
+                      Edit
+                    </a>
+                  {% endif %}
+
+                  {% if permission.can_delete %}
+                    <form method="POST"
+                          action="{{ url_for('learners.delete_learner', college_id=college.id, learner_id=l.id) }}"
+                          style="display:inline-block;"
+                          onsubmit="return confirm('Are you sure you want to delete this learner?');">
+                      <button type="submit" class="btn btn-sm btn-outline-danger">
+                        Delete
+                      </button>
+                    </form>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+
+        </table>
+      </div>
+    {% else %}
+      <p>No learner records found for this college.</p>
+    {% endif %}
+
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,77 @@
+<div class="row mb-3">
+  <div class="col-md-4">
+    <label class="form-label">Name of Company</label>
+    <input type="text" name="company_name" class="form-control" value="{{ learner.company_name if learner else '' }}">
+  </div>
+
+  <div class="col-md-4">
+    <label class="form-label">Sector</label>
+    <select name="sector" class="form-select">
+      <option value="">-- Select --</option>
+      {% for opt in dropdowns.sector %}
+        <option value="{{ opt.option_value }}" {% if learner and learner.sector == opt.option_value %}selected{% endif %}>{{ opt.option_label or opt.option_value }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="col-md-4">
+    <label class="form-label">Designation</label>
+    <input type="text" name="designation" class="form-control" value="{{ learner.designation if learner else '' }}">
+  </div>
+</div>
+
+<div class="row mb-3">
+  <div class="col-md-4">
+    <label class="form-label">Job Location District</label>
+    <select name="job_location_district" class="form-select">
+      <option value="">-- Select --</option>
+      {% for opt in dropdowns.job_location_district %}
+        <option value="{{ opt.option_value }}" {% if learner and learner.job_location_district == opt.option_value %}selected{% endif %}>{{ opt.option_label or opt.option_value }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="col-md-4">
+    <label class="form-label">Job Category</label>
+    <select name="job_category" class="form-select">
+      <option value="">-- Select --</option>
+      {% for opt in dropdowns.job_category %}
+        <option value="{{ opt.option_value }}" {% if learner and learner.job_category == opt.option_value %}selected{% endif %}>{{ opt.option_label or opt.option_value }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="col-md-4">
+    <label class="form-label">Employer Offerings</label>
+    {% set selected_offerings = learner.employer_offerings if learner and learner.employer_offerings else [] %}
+    {% for opt in dropdowns.employer_offerings %}
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" name="employer_offerings"
+               value="{{ opt.option_value }}"
+               {% if opt.option_value in selected_offerings %}checked{% endif %}>
+        <label class="form-check-label">{{ opt.option_label or opt.option_value }}</label>
+      </div>
+    {% endfor %}
+  </div>
+
+  
+</div>
+
+<div class="row mb-3">
+  
+
+  <div class="col-md-4">
+    <label class="form-label">How many days in a week do you work?</label>
+    <input type="number" name="working_days_per_week" class="form-control" value="{{ learner.working_days_per_week if learner else '' }}">
+  </div>
+
+  <div class="col-md-4">
+    <label class="form-label">How many hours in a day do you spend working?</label>
+    <input type="number" name="working_hours_per_day" class="form-control" value="{{ learner.working_hours_per_day if learner else '' }}">
+  </div>
+  <div class="col-md-4">
+    <label class="form-label">Gross Income per Month</label>
+    <input type="number" name="gross_income_per_month" class="form-control" value="{{ learner.gross_income_per_month if learner else '' }}">
+  </div>
+</div>
+

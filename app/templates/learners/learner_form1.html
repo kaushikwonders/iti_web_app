@@ -1,0 +1,1046 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+{% if mode == "add" %}
+  <h3>Add Learner - {{ college.institute_name }}</h3>
+{% else %}
+  <h3>Edit Learner - {{ college.institute_name }}</h3>
+{% endif %}
+
+<p class="text-muted">
+  State: {{ college.state }} |
+  District: {{ college.district }} |
+  College Code: {{ college.college_code or "-" }}
+</p>
+
+<div class="card">
+  <div class="card-body">
+
+    <form method="POST">
+
+      <h5 class="mb-3">College Details</h5>
+
+      <div class="row mb-3">
+        <div class="col-md-4">
+          <label class="form-label">Name of Institute</label>
+          <input type="text"
+                 class="form-control"
+                 value="{{ college.institute_name }}"
+                 readonly>
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label">State</label>
+          <input type="text"
+                 class="form-control"
+                 value="{{ college.state }}"
+                 readonly>
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label">District</label>
+          <input type="text"
+                 class="form-control"
+                 value="{{ college.district }}"
+                 readonly>
+        </div>
+      </div>
+
+      <hr>
+
+      <h5 class="mb-3">Basic Learner Details</h5>
+
+      <div class="row mb-3">
+
+        <div class="col-md-4">
+          <label class="form-label">Mobile No <span class="text-danger">*</span></label>
+          <input type="text"
+                 name="mobile_no"
+                 class="form-control"
+                 maxlength="10"
+                 value="{{ learner.mobile_no if learner and learner.mobile_no else '' }}">
+                 
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label">Email Id <span class="text-danger">*</span></label>
+          <input type="email"
+                 name="email_id"
+                 class="form-control"
+                 value="{{ learner.email_id if learner and learner.email_id else '' }}">
+                 
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label">Gender</label>
+          <select name="gender" class="form-select">
+            <option value="">-- Select --</option>
+            {% for opt in dropdowns.gender %}
+              <option value="{{ opt.option_value }}"
+                {% if learner and learner.gender == opt.option_value %}selected{% endif %}>
+                {{ opt.option_label or opt.option_value }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+      </div>
+
+      <div class="row mb-3">
+
+        <div class="col-md-4">
+          <label class="form-label">First Name</label>
+          <input type="text"
+                 name="first_name"
+                 class="form-control"
+                 value="{{ learner.first_name if learner else '' }}">
+        </div>
+
+
+        <div class="col-md-4">
+          <label class="form-label">Last Name</label>
+          <input type="text"
+                 name="last_name"
+                 class="form-control"
+                 value="{{ learner.last_name if learner else '' }}">
+        </div>
+
+      </div>
+
+      <div class="row mb-3">
+
+        <div class="col-md-4">
+          <label class="form-label">Date of Birth</label>
+          <input type="date"
+                 name="date_of_birth"
+                 class="form-control"
+                 value="{{ learner.date_of_birth if learner and learner.date_of_birth else '' }}">
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label">Educational Qualification</label>
+          <select name="educational_qualification" class="form-select">
+            <option value="">-- Select --</option>
+            {% for opt in dropdowns.educational_qualification %}
+              <option value="{{ opt.option_value }}"
+                {% if learner and learner.educational_qualification == opt.option_value %}selected{% endif %}>
+                {{ opt.option_label or opt.option_value }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label">Marital Status</label>
+          <select name="marital_status" class="form-select">
+            <option value="">-- Select --</option>
+            {% for opt in dropdowns.marital_status %}
+              <option value="{{ opt.option_value }}"
+                {% if learner and learner.marital_status == opt.option_value %}selected{% endif %}>
+                {{ opt.option_label or opt.option_value }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+      </div>
+
+      <hr>
+
+      <h5 class="mb-3">Course Details</h5>
+
+      <div class="row mb-3">
+
+        <div class="col-md-4">
+          <label class="form-label">Trade/Course</label>
+          <select name="trade_course" class="form-select">
+            <option value="">-- Select --</option>
+            {% for opt in dropdowns.trade_course %}
+              <option value="{{ opt.option_value }}"
+                {% if learner and learner.trade_course == opt.option_value %}selected{% endif %}>
+                {{ opt.option_label or opt.option_value }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-md-2">
+          <label class="form-label">Batch Start Month</label>
+          <input type="text"
+                 name="batch_start_month"
+                 class="form-control"
+                 value="{{ learner.batch_start_month if learner else '' }}">
+        </div>
+
+        <div class="col-md-2">
+          <label class="form-label">Batch Start Year</label>
+          <input type="number"
+                 name="batch_start_year"
+                 class="form-control"
+                 value="{{ learner.batch_start_year if learner else '' }}">
+        </div>
+
+        <div class="col-md-2">
+          <label class="form-label">Batch End Month</label>
+          <input type="text"
+                 name="batch_end_month"
+                 class="form-control"
+                 value="{{ learner.batch_end_month if learner else '' }}">
+        </div>
+
+        <div class="col-md-2">
+          <label class="form-label">Batch End Year</label>
+          <input type="number"
+                 name="batch_end_year"
+                 class="form-control"
+                 value="{{ learner.batch_end_year if learner else '' }}">
+        </div>
+
+      </div>
+
+      <div class="row mb-3">
+
+        <div class="col-md-4">
+          <label class="form-label">Work Experience</label>
+          <select name="work_experience" class="form-select">
+            <option value="">-- Select --</option>
+            {% for opt in dropdowns.work_experience %}
+              <option value="{{ opt.option_value }}"
+                {% if learner and learner.work_experience == opt.option_value %}selected{% endif %}>
+                {{ opt.option_label or opt.option_value }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label">Annual Family Income</label>
+          <select name="annual_family_income" class="form-select">
+            <option value="">-- Select --</option>
+            {% for opt in dropdowns.annual_family_income %}
+              <option value="{{ opt.option_value }}"
+                {% if learner and learner.annual_family_income == opt.option_value %}selected{% endif %}>
+                {{ opt.option_label or opt.option_value }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label">Course Completion Status</label>
+          <select name="course_completion_status" class="form-select" id="course_completion_status">
+            <option value="">-- Select --</option>
+            {% for opt in dropdowns.course_completion_status %}
+              <option value="{{ opt.option_value }}"
+                {% if learner and learner.course_completion_status == opt.option_value %}selected{% endif %}>
+                {{ opt.option_label or opt.option_value }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+      </div>
+
+      <hr>
+        <div id="section_employed" class="conditional-section">
+      <hr>
+        <h5>Employment Details</h5>
+        {% include "learners/partials/employed_fields.html" %}
+      </div>
+
+      <div id="section_apprenticeship" class="conditional-section d-none">
+      <hr>
+      <h5>Apprenticeship / Internship Details</h5>
+      {% include "learners/partials/apprenticeship_fields.html" %}
+      </div>
+
+<div id="section_self_employed" class="conditional-section d-none">
+  <hr>
+  <h5>Self Employment Details</h5>
+
+  <div class="row mb-3">
+
+    <div class="col-md-3">
+      <label class="form-label">Type of Self Employment</label>
+      <select name="self_employment_type" id="self_employment_type" class="form-select">
+        <option value="">-- Select --</option>
+        {% for opt in dropdowns.self_employment_type %}
+          <option value="{{ opt.option_value }}"
+            {% if learner and learner.self_employment_type == opt.option_value %}selected{% endif %}>
+            {{ opt.option_label or opt.option_value }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="col-md-3">
+      <label class="form-label">Sector</label>
+      <select name="sector" class="form-select">
+        <option value="">-- Select --</option>
+        {% for opt in dropdowns.sector %}
+          <option value="{{ opt.option_value }}"
+            {% if learner and learner.sector == opt.option_value %}selected{% endif %}>
+            {{ opt.option_label or opt.option_value }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="col-md-3">
+      <label class="form-label">Gross Income per Month</label>
+      <input type="number"
+             name="gross_income_per_month"
+             class="form-control"
+             min="0"
+             value="{{ learner.gross_income_per_month if learner and learner.gross_income_per_month is not none else '' }}">
+    </div>
+
+    <div class="col-md-3">
+      <label class="form-label">Insert Drive link to the evidence file</label>
+      <input type="text"
+             name="evidence_drive_link"
+             class="form-control"
+             value="{{ learner.evidence_drive_link if learner else '' }}">
+    </div>
+
+  </div>
+
+  <div class="row mb-3">
+
+    <div class="col-md-6">
+      <label class="form-label">How many days in a week do you work?</label>
+      <input type="number"
+             name="working_days_per_week"
+             class="form-control"
+             min="0"
+             max="7"
+             value="{{ learner.working_days_per_week if learner and learner.working_days_per_week is not none else '' }}">
+    </div>
+
+    <div class="col-md-6">
+      <label class="form-label">How many hours in a day do you spend working in your current role?</label>
+      <input type="number"
+             name="working_hours_per_day"
+             class="form-control"
+             min="0"
+             max="24"
+             value="{{ learner.working_hours_per_day if learner and learner.working_hours_per_day is not none else '' }}">
+    </div>
+
+  </div>
+
+  <!-- Employer + Own Account common fields -->
+  <div id="self_employed_employer_own_account_fields" class="self-employment-subsection d-none">
+    <hr>
+    <h6>Business Details</h6>
+
+    <div class="row mb-3">
+      <div class="col-md-4">
+        <label class="form-label">Year of establishment of business</label>
+        <input type="number"
+               name="business_establishment_year"
+               class="form-control"
+               min="1900"
+               max="2100"
+               value="{{ learner.business_establishment_year if learner and learner.business_establishment_year is not none else '' }}">
+      </div>
+
+      <div class="col-md-8">
+        <label class="form-label">Describe business</label>
+        <textarea name="business_description" class="form-control" rows="2">{{ learner.business_description if learner and learner.business_description else '' }}</textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- Household common business description -->
+  <div id="self_employed_household_description_fields" class="self-employment-subsection d-none">
+    <hr>
+    <h6>Household / Family Enterprise Details</h6>
+
+    <div class="row mb-3">
+      <div class="col-md-12">
+        <label class="form-label">Describe business</label>
+        <textarea name="business_description" class="form-control" rows="2">{{ learner.business_description if learner and learner.business_description else '' }}</textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- Common business fields for Employer, Own Account, Platform/Gig, Household -->
+  <div id="self_employed_common_business_fields" class="self-employment-subsection d-none">
+
+    <div class="row mb-3">
+      <div class="col-md-4">
+        <label class="form-label">Is your work/business related to green or technology?</label>
+        <select name="green_or_technology_related" class="form-select">
+          <option value="">-- Select --</option>
+          {% for opt in dropdowns.green_or_technology_related %}
+            <option value="{{ opt.option_value }}"
+              {% if learner and learner.green_or_technology_related == opt.option_value %}selected{% endif %}>
+              {{ opt.option_label or opt.option_value }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="col-md-4 self-employment-not-gig-field">
+        <label class="form-label">Where is the work place located?</label>
+        <select name="workplace_location" class="form-select">
+          <option value="">-- Select --</option>
+          {% for opt in dropdowns.workplace_location %}
+            <option value="{{ opt.option_value }}"
+              {% if learner and learner.workplace_location == opt.option_value %}selected{% endif %}>
+              {{ opt.option_label or opt.option_value }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="col-md-4">
+        <label class="form-label">
+          How happy are you currently with your income at present keeping in mind the amount of work you do?
+        </label>
+        <select name="income_happiness_score" class="form-select">
+          <option value="">-- Select --</option>
+          {% for opt in dropdowns.income_happiness_score %}
+            <option value="{{ opt.option_value }}"
+              {% if learner and learner.income_happiness_score == opt.option_value %}selected{% endif %}>
+              {{ opt.option_label or opt.option_value }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Employer + Own Account only -->
+  <div id="self_employed_business_registration_fields" class="self-employment-subsection d-none">
+
+    <div class="row mb-3">
+      <div class="col-md-4">
+        <label class="form-label">Is your business formally registered under any of the following?</label>
+        <select name="business_registration_type" class="form-select">
+          <option value="">-- Select --</option>
+          {% for opt in dropdowns.business_registration_type %}
+            <option value="{{ opt.option_value }}"
+              {% if learner and learner.business_registration_type == opt.option_value %}selected{% endif %}>
+              {{ opt.option_label or opt.option_value }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="col-md-4">
+        <label class="form-label">Do you currently use social media/Whatsapp/Digital platforms to market your business or services?</label>
+        <select name="uses_digital_platforms_for_marketing" class="form-select">
+          <option value="">-- Select --</option>
+          {% for opt in dropdowns.uses_digital_platforms_for_marketing %}
+            <option value="{{ opt.option_value }}"
+              {% if learner and learner.uses_digital_platforms_for_marketing == opt.option_value %}selected{% endif %}>
+              {{ opt.option_label or opt.option_value }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="col-md-4">
+        <label class="form-label">How many employees do you have presently to whom you pay wages/salary?</label>
+        <input type="number"
+               name="number_of_paid_employees"
+               class="form-control"
+               min="0"
+               value="{{ learner.number_of_paid_employees if learner and learner.number_of_paid_employees is not none else '' }}">
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Platform / Gig only -->
+  <div id="self_employed_gig_fields" class="self-employment-subsection d-none">
+    <hr>
+    <h6>Platform / Gig Work Details</h6>
+
+    <div class="row mb-3">
+      <div class="col-md-4">
+        <label class="form-label">Do you currently use social media/Whatsapp/Digital platforms to market your business or services?</label>
+        <select name="uses_digital_platforms_for_marketing" class="form-select">
+          <option value="">-- Select --</option>
+          {% for opt in dropdowns.uses_digital_platforms_for_marketing %}
+            <option value="{{ opt.option_value }}"
+              {% if learner and learner.uses_digital_platforms_for_marketing == opt.option_value %}selected{% endif %}>
+              {{ opt.option_label or opt.option_value }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="col-md-8">
+        <label class="form-label">Please specify if any other platforms for gig work</label>
+        <input type="text"
+               name="other_gig_platforms"
+               class="form-control"
+               value="{{ learner.other_gig_platforms if learner and learner.other_gig_platforms else '' }}">
+      </div>
+    </div>
+
+    <div class="row mb-3">
+      <div class="col-md-6">
+        <label class="form-label">If Gig work, what is the nature of the Gig work that you do?</label>
+        {% set selected_gig_work = learner.gig_work_nature if learner and learner.gig_work_nature else [] %}
+        {% for opt in dropdowns.gig_work_nature %}
+          <div class="form-check">
+            <input class="form-check-input"
+                   type="checkbox"
+                   name="gig_work_nature"
+                   value="{{ opt.option_value }}"
+                   {% if opt.option_value in selected_gig_work %}checked{% endif %}>
+            <label class="form-check-label">{{ opt.option_label or opt.option_value }}</label>
+          </div>
+        {% endfor %}
+      </div>
+
+      <div class="col-md-6">
+        <label class="form-label">What is/are the platforms that you currently use to locate gig opportunities?</label>
+        {% set selected_gig_platforms = learner.gig_platforms_used if learner and learner.gig_platforms_used else [] %}
+        {% for opt in dropdowns.gig_platforms_used %}
+          <div class="form-check">
+            <input class="form-check-input"
+                   type="checkbox"
+                   name="gig_platforms_used"
+                   value="{{ opt.option_value }}"
+                   {% if opt.option_value in selected_gig_platforms %}checked{% endif %}>
+            <label class="form-check-label">{{ opt.option_label or opt.option_value }}</label>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Household / Family only -->
+  <div id="self_employed_household_fields" class="self-employment-subsection d-none">
+
+    <div class="row mb-3">
+      <div class="col-md-6">
+        <label class="form-label">If Helper in Household enterprise, do you receive wages/share of profit for the work you do?</label>
+        <select name="receives_wages_or_profit_share" class="form-select">
+          <option value="">-- Select --</option>
+          {% for opt in dropdowns.receives_wages_or_profit_share %}
+            <option value="{{ opt.option_value }}"
+              {% if learner and learner.receives_wages_or_profit_share == opt.option_value %}selected{% endif %}>
+              {{ opt.option_label or opt.option_value }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Business condition checkbox for Employer, Own Account, Household -->
+  <div id="self_employed_business_conditions_fields" class="self-employment-subsection d-none">
+
+    <div class="row mb-3">
+      <div class="col-md-12">
+        <label class="form-label">
+          If own account or employer or helper in household enterprise, which of the following statements are true for the business?
+        </label>
+
+        {% set selected_business_conditions = learner.business_conditions if learner and learner.business_conditions else [] %}
+        {% for opt in dropdowns.business_conditions %}
+          <div class="form-check">
+            <input class="form-check-input"
+                   type="checkbox"
+                   name="business_conditions"
+                   value="{{ opt.option_value }}"
+                   {% if opt.option_value in selected_business_conditions %}checked{% endif %}>
+            <label class="form-check-label">{{ opt.option_label or opt.option_value }}</label>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Evidence Type - Employer -->
+<div id="self_employed_evidence_employer" class="self-employment-subsection d-none">
+  <div class="row mb-3">
+    <div class="col-md-12">
+      <label class="form-label">If evidence available, Evidence Type</label>
+
+      {% set selected_evidence = learner.evidence_type if learner and learner.evidence_type else [] %}
+
+      {% for opt in dropdowns.evidence_type_self_employed_employer %}
+        <div class="form-check">
+          <input class="form-check-input"
+                 type="checkbox"
+                 name="evidence_type"
+                 value="{{ opt.option_value }}"
+                 {% if opt.option_value in selected_evidence %}checked{% endif %}>
+          <label class="form-check-label">
+            {{ opt.option_label or opt.option_value }}
+          </label>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+
+<!-- Evidence Type - Own Account Worker -->
+<div id="self_employed_evidence_own_account" class="self-employment-subsection d-none">
+  <div class="row mb-3">
+    <div class="col-md-12">
+      <label class="form-label">If evidence available, Evidence Type</label>
+
+      {% set selected_evidence = learner.evidence_type if learner and learner.evidence_type else [] %}
+
+      {% for opt in dropdowns.evidence_type_self_employed_own_account %}
+        <div class="form-check">
+          <input class="form-check-input"
+                 type="checkbox"
+                 name="evidence_type"
+                 value="{{ opt.option_value }}"
+                 {% if opt.option_value in selected_evidence %}checked{% endif %}>
+          <label class="form-check-label">
+            {{ opt.option_label or opt.option_value }}
+          </label>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+
+<!-- Evidence Type - Platform/Gig Worker -->
+<div id="self_employed_evidence_gig_worker" class="self-employment-subsection d-none">
+  <div class="row mb-3">
+    <div class="col-md-12">
+      <label class="form-label">If evidence available, Evidence Type</label>
+
+      {% set selected_evidence = learner.evidence_type if learner and learner.evidence_type else [] %}
+
+      {% for opt in dropdowns.evidence_type_self_employed_gig_worker %}
+        <div class="form-check">
+          <input class="form-check-input"
+                 type="checkbox"
+                 name="evidence_type"
+                 value="{{ opt.option_value }}"
+                 {% if opt.option_value in selected_evidence %}checked{% endif %}>
+          <label class="form-check-label">
+            {{ opt.option_label or opt.option_value }}
+          </label>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+
+<!-- Evidence Type - Household / Family Enterprise -->
+<div id="self_employed_evidence_household_family" class="self-employment-subsection d-none">
+  <div class="row mb-3">
+    <div class="col-md-12">
+      <label class="form-label">If evidence available, Evidence Type</label>
+
+      {% set selected_evidence = learner.evidence_type if learner and learner.evidence_type else [] %}
+
+      {% for opt in dropdowns.evidence_type_self_employed_household_family %}
+        <div class="form-check">
+          <input class="form-check-input"
+                 type="checkbox"
+                 name="evidence_type"
+                 value="{{ opt.option_value }}"
+                 {% if opt.option_value in selected_evidence %}checked{% endif %}>
+          <label class="form-check-label">
+            {{ opt.option_label or opt.option_value }}
+          </label>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+</div>
+
+      <div id="section_interested_job" class="conditional-section d-none">
+      <hr>
+      <h5>Interested for Job</h5>
+
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <label class="form-label">What type of jobs are you looking for?</label>
+          <select name="job_type_looking_for" class="form-select">
+            <option value="">-- Select --</option>
+            {% for opt in dropdowns.job_type_looking_for %}
+              <option value="{{ opt.option_value }}" {% if learner and learner.job_type_looking_for == opt.option_value %}selected{% endif %}>
+                {{ opt.option_label or opt.option_value }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">What time would you like to begin work?</label>
+          <select name="preferred_work_start_time" class="form-select">
+            <option value="">-- Select --</option>
+            {% for opt in dropdowns.preferred_work_start_time %}
+              <option value="{{ opt.option_value }}" {% if learner and learner.preferred_work_start_time == opt.option_value %}selected{% endif %}>
+                {{ opt.option_label or opt.option_value }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      </div>
+
+      <div id="section_not_interested" class="conditional-section d-none">
+      <hr>
+      <h5>Not Interested for Job</h5>
+
+      <label class="form-label">Reasons for not being interested in working?</label>
+      {% set selected_reasons = learner.reason_not_interested_working if learner and learner.reason_not_interested_working else [] %}
+      {% for opt in dropdowns.reason_not_interested_working %}
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" name="reason_not_interested_working"
+                  value="{{ opt.option_value }}"
+                  {% if opt.option_value in selected_reasons %}checked{% endif %}>
+          <label class="form-check-label">{{ opt.option_label or opt.option_value }}</label>
+        </div>
+      {% endfor %}
+      </div>
+
+      <div id="section_higher_studies" class="conditional-section d-none">
+      <hr>
+      <h5>Higher Studies</h5>
+
+      <label class="form-label">What is the higher education course the alumni is pursuing?</label>
+      <select name="higher_education_course" class="form-select">
+        <option value="">-- Select --</option>
+        {% for opt in dropdowns.higher_education_course %}
+          <option value="{{ opt.option_value }}" {% if learner and learner.higher_education_course == opt.option_value %}selected{% endif %}>
+            {{ opt.option_label or opt.option_value }}
+          </option>
+        {% endfor %}
+      </select>
+      </div>
+
+      <div id="section_dropout" class="conditional-section d-none">
+      <hr>
+      <h5>Drop Out</h5>
+
+      <label class="form-label">Dropout Reason</label>
+      <select name="dropout_reason" class="form-select">
+        <option value="">-- Select --</option>
+        {% for opt in dropdowns.dropout_reason %}
+          <option value="{{ opt.option_value }}" {% if learner and learner.dropout_reason == opt.option_value %}selected{% endif %}>
+            {{ opt.option_label or opt.option_value }}
+          </option>
+        {% endfor %}
+      </select>
+      </div>
+
+      <hr>
+
+      <hr>
+
+        <h5 class="mb-3">Placement & Follow-up Details</h5>
+
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label class="form-label">
+              Current Ladder Step: On which step do you personally feel you stand at this time? 0 to 10
+            </label>
+            <input type="number" name="ladder_current_step" class="form-control" min="0" max="10"
+                  value="{{ learner.ladder_current_step if learner and learner.ladder_current_step is not none else '' }}">
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">
+              Future Ladder Step: On which step do you think you will stand about five years from now? 0 to 10
+            </label>
+            <input type="number" name="ladder_future_step" class="form-control" min="0" max="10"
+                  value="{{ learner.ladder_future_step if learner and learner.ladder_future_step is not none else '' }}">
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <div class="col-md-3">
+            <label class="form-label">Status After 3 Months</label>
+            <select name="status_after_3_months" class="form-select">
+              <option value="">-- Select --</option>
+              {% for opt in dropdowns.status_after_3_months %}
+                <option value="{{ opt.option_value }}" {% if learner and learner.status_after_3_months == opt.option_value %}selected{% endif %}>
+                  {{ opt.option_label or opt.option_value }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label">Name of Company (3 Months)</label>
+            <input type="text" name="company_name_3_months" class="form-control"
+                  value="{{ learner.company_name_3_months if learner else '' }}">
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label">Designation (3 Months)</label>
+            <input type="text" name="designation_3_months" class="form-control"
+                  value="{{ learner.designation_3_months if learner else '' }}">
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label">Gross Income per Month (3 Months)</label>
+            <input type="number" name="gross_income_3_months" class="form-control"
+                  value="{{ learner.gross_income_3_months if learner else '' }}">
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <div class="col-md-3">
+            <label class="form-label">Sector (3 Months)</label>
+            <select name="sector_3_months" class="form-select">
+              <option value="">-- Select --</option>
+              {% for opt in dropdowns.sector_3_months %}
+                <option value="{{ opt.option_value }}" {% if learner and learner.sector_3_months == opt.option_value %}selected{% endif %}>
+                  {{ opt.option_label or opt.option_value }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label">Status After 6 Months</label>
+            <select name="status_after_6_months" class="form-select">
+              <option value="">-- Select --</option>
+              {% for opt in dropdowns.status_after_6_months %}
+                <option value="{{ opt.option_value }}" {% if learner and learner.status_after_6_months == opt.option_value %}selected{% endif %}>
+                  {{ opt.option_label or opt.option_value }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label">Name of Company (6 Months)</label>
+            <input type="text" name="company_name_6_months" class="form-control"
+                  value="{{ learner.company_name_6_months if learner else '' }}">
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label">Designation (6 Months)</label>
+            <input type="text" name="designation_6_months" class="form-control"
+                  value="{{ learner.designation_6_months if learner else '' }}">
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <div class="col-md-3">
+            <label class="form-label">Gross Income per Month (6 Months)</label>
+            <input type="number" name="gross_income_6_months" class="form-control"
+                  value="{{ learner.gross_income_6_months if learner else '' }}">
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label">Sector (6 Months)</label>
+            <select name="sector_6_months" class="form-select">
+              <option value="">-- Select --</option>
+              {% for opt in dropdowns.sector_6_months %}
+                <option value="{{ opt.option_value }}" {% if learner and learner.sector_6_months == opt.option_value %}selected{% endif %}>
+                  {{ opt.option_label or opt.option_value }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label">Project & Phase</label>
+            <input type="text" name="project_phase" class="form-control"
+                  value="{{ learner.project_phase if learner else '' }}">
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label">CITS/CTS</label>
+            <select name="cits_cts" class="form-select">
+              <option value="">-- Select --</option>
+              {% for opt in dropdowns.cits_cts %}
+                <option value="{{ opt.option_value }}" {% if learner and learner.cits_cts == opt.option_value %}selected{% endif %}>
+                  {{ opt.option_label or opt.option_value }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label class="form-label">Project</label>
+            <input type="text" name="project" class="form-control"
+                  value="{{ learner.project if learner else '' }}">
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Phase</label>
+            <input type="text" name="phase" class="form-control"
+                  value="{{ learner.phase if learner else '' }}">
+          </div>
+        </div>
+
+           
+
+      
+
+      <button type="submit" class="btn btn-primary">
+        {% if mode == "add" %}
+          Save Learner
+        {% else %}
+          Update Learner
+        {% endif %}
+      </button>
+
+      <a href="{{ url_for('learners.college_learners', college_id=college.id) }}"
+         class="btn btn-secondary">
+        Cancel
+      </a>
+
+    </form>
+
+  </div>
+</div>
+
+<script>
+function normalizeStatus(value) {
+  return (value || "").trim().toLowerCase();
+}
+
+function updateCourseStatusSections() {
+  const statusSelect = document.getElementById("course_completion_status");
+  const status = normalizeStatus(statusSelect ? statusSelect.value : "");
+
+  const sections = document.querySelectorAll(".conditional-section");
+  sections.forEach(section => section.classList.add("d-none"));
+
+  if (status === "employed") {
+    document.getElementById("section_employed")?.classList.remove("d-none");
+  }
+
+  if (status === "apprenticeship/internship" || status === "apprenticeship" || status === "internship") {
+    document.getElementById("section_apprenticeship")?.classList.remove("d-none");
+  }
+
+  if (status === "self employed" || status === "self-employed") {
+    document.getElementById("section_self_employed")?.classList.remove("d-none");
+    updateSelfEmploymentSections();
+  }
+
+  if (status === "interested for job") {
+    document.getElementById("section_interested_job")?.classList.remove("d-none");
+  }
+
+  if (status === "not interested for job") {
+    document.getElementById("section_not_interested")?.classList.remove("d-none");
+  }
+
+  if (status === "higher studies") {
+    document.getElementById("section_higher_studies")?.classList.remove("d-none");
+  }
+
+  if (status === "drop out" || status === "dropout") {
+    document.getElementById("section_dropout")?.classList.remove("d-none");
+  }
+}
+
+function normalizeSelfEmploymentType(value) {
+  return (value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, " ");
+}
+
+function hideSelfEmploymentSubsections() {
+  document.querySelectorAll(".self-employment-subsection").forEach(function(section) {
+    section.classList.add("d-none");
+  });
+}
+
+function showSelfEmploymentSection(id) {
+  const section = document.getElementById(id);
+  if (section) {
+    section.classList.remove("d-none");
+  }
+}
+
+function updateSelfEmploymentSections() {
+  const typeSelect = document.getElementById("self_employment_type");
+
+  if (!typeSelect) {
+    return;
+  }
+
+  const type = normalizeSelfEmploymentType(typeSelect.value);
+
+  hideSelfEmploymentSubsections();
+
+  if (type === "employer") {
+    showSelfEmploymentSection("self_employed_employer_own_account_fields");
+    showSelfEmploymentSection("self_employed_common_business_fields");
+    showSelfEmploymentSection("self_employed_business_registration_fields");
+    showSelfEmploymentSection("self_employed_business_conditions_fields");
+    showSelfEmploymentSection("self_employed_evidence_employer");
+  }
+
+  if (type === "own account workers" || type === "own account worker") {
+    showSelfEmploymentSection("self_employed_employer_own_account_fields");
+    showSelfEmploymentSection("self_employed_common_business_fields");
+    showSelfEmploymentSection("self_employed_business_registration_fields");
+    showSelfEmploymentSection("self_employed_business_conditions_fields");
+    showSelfEmploymentSection("self_employed_evidence_own_account");
+  }
+
+  if (
+    type === "platform/gig worker" ||
+    type === "platform / gig worker" ||
+    type === "platform/gig workers" ||
+    type === "gig worker"
+  ) {
+    showSelfEmploymentSection("self_employed_common_business_fields");
+    showSelfEmploymentSection("self_employed_gig_fields");
+    showSelfEmploymentSection("self_employed_evidence_gig_worker");
+  }
+
+  if (
+    type === "household/family enterprise" ||
+    type === "household / family enterprise" ||
+    type === "household/family" ||
+    type === "household / family"
+  ) {
+    showSelfEmploymentSection("self_employed_household_description_fields");
+    showSelfEmploymentSection("self_employed_common_business_fields");
+    showSelfEmploymentSection("self_employed_household_fields");
+    showSelfEmploymentSection("self_employed_business_conditions_fields");
+    showSelfEmploymentSection("self_employed_evidence_household_family");
+  }
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+  const statusSelect = document.getElementById("course_completion_status");
+  const selfEmploymentTypeSelect = document.getElementById("self_employment_type");
+
+  if (statusSelect) {
+    statusSelect.addEventListener("change", function () {
+      updateCourseStatusSections();
+      updateSelfEmploymentSections();
+    });
+
+    updateCourseStatusSections();
+  }
+
+  if (selfEmploymentTypeSelect) {
+    selfEmploymentTypeSelect.addEventListener("change", updateSelfEmploymentSections);
+    updateSelfEmploymentSections();
+  }
+});
+</script>
+
+{% endblock %}

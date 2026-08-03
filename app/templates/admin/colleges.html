@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h3>Colleges / ITIs</h3>
+
+<form method="post" class="card card-body mb-4">
+  <div class="row g-2">
+    <div class="col">
+      <input name="institute_name" class="form-control" placeholder="Institute name" required>
+    </div>
+
+<div class="col">
+  <select name="state"
+          id="college_state"
+          class="form-select"
+          required>
+    <option value="">-- Select State --</option>
+    {% for opt in state_options %}
+      <option value="{{ opt.option_value }}">
+        {{ opt.option_label or opt.option_value }}
+      </option>
+    {% endfor %}
+  </select>
+</div>
+
+<div class="col">
+  <select name="district"
+          id="college_district"
+          class="form-select"
+          required>
+    <option value="">-- Select State First --</option>
+  </select>
+</div>
+
+    <div class="col">
+      <input name="college_code" class="form-control" placeholder="Code">
+    </div>
+
+    <div class="col-auto form-check mt-2">
+      <input name="is_active" class="form-check-input" type="checkbox" checked>
+      Active
+    </div>
+
+    <div class="col-auto">
+      <button class="btn btn-primary">Create</button>
+    </div>
+  </div>
+</form>
+
+<table class="table table-bordered table-sm">
+  <thead>
+    <tr>
+      <th>Institute</th>
+      <th>State</th>
+      <th>District</th>
+      <th>Code</th>
+      <th style="width: 220px;">Action</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    {% for c in colleges %}
+      <tr>
+        <td>{{ c.institute_name }}</td>
+        <td>{{ c.state }}</td>
+        <td>{{ c.district }}</td>
+        <td>{{ c.college_code or "-" }}</td>
+
+        <td>
+          <a href="{{ url_for('learners.college_learners', college_id=c.id) }}"
+             class="btn btn-sm btn-outline-success">
+            Open Learners
+          </a>
+
+          <a href="{{ url_for('admin.edit_college', college_id=c.id) }}"
+             class="btn btn-sm btn-outline-primary">
+            Edit
+          </a>
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<script>
+function setupDependentDistrictDropdown(stateSelectId, districtSelectId) {
+  const stateSelect = document.getElementById(stateSelectId);
+  const districtSelect = document.getElementById(districtSelectId);
+
+  if (!stateSelect || !districtSelect) {
+    return;
+  }
+
+  async function loadDistricts() {
+    const selectedState = stateSelect.value;
+    const selectedDistrict = districtSelect.dataset.selected || "";
+
+    districtSelect.innerHTML = "";
+
+    if (!selectedState) {
+      const option = document.createElement("option");
+      option.value = "";
+      option.textContent = "-- Select State First --";
+      districtSelect.appendChild(option);
+      return;
+    }
+
+    const loadingOption = document.createElement("option");
+    loadingOption.value = "";
+    loadingOption.textContent = "Loading districts...";
+    districtSelect.appendChild(loadingOption);
+
+    try {
+      const response = await fetch(`/admin/api/districts?state=${encodeURIComponent(selectedState)}`);
+      const data = await response.json();
+
+      districtSelect.innerHTML = "";
+
+      const defaultOption = document.createElement("option");
+      defaultOption.value = "";
+      defaultOption.textContent = "-- Select District --";
+      districtSelect.appendChild(defaultOption);
+
+      data.districts.forEach(function (district) {
+        const option = document.createElement("option");
+        option.value = district.value;
+        option.textContent = district.label;
+
+        if (district.value === selectedDistrict) {
+          option.selected = true;
+        }
+
+        districtSelect.appendChild(option);
+      });
+
+      districtSelect.dataset.selected = "";
+
+    } catch (error) {
+      districtSelect.innerHTML = "";
+
+      const errorOption = document.createElement("option");
+      errorOption.value = "";
+      errorOption.textContent = "Unable to load districts";
+      districtSelect.appendChild(errorOption);
+
+      console.error("District loading failed:", error);
+    }
+  }
+
+  stateSelect.addEventListener("change", function () {
+    districtSelect.dataset.selected = "";
+    loadDistricts();
+  });
+
+  loadDistricts();
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+  setupDependentDistrictDropdown("college_state", "college_district");
+});
+</script>
+
+{% endblock %}

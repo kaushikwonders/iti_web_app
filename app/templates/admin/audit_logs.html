@@ -1,0 +1,5 @@
+{% extends 'base.html' %}
+{% block content %}
+<h3>Audit Logs</h3>
+<table class="table table-bordered table-sm"><thead><tr><th>Time</th><th>User</th><th>Action</th><th>Entity</th><th>Remarks</th></tr></thead><tbody>{% for l in logs %}<tr><td>{{ l.created_at }}</td><td>{{ l.user.email if l.user else '' }}</td><td>{{ l.action_type }}</td><td>{{ l.entity_type }} #{{ l.entity_id }}</td><td>{{ l.remarks }}</td></tr>{% endfor %}</tbody></table>
+{% endblock %}

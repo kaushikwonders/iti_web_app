@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h3>{{ master_type.master_name }}</h3>
+    <p class="text-muted mb-0">
+      Master Key: <code>{{ master_type.master_key }}</code>
+    </p>
+  </div>
+
+  <div>
+    <a href="{{ url_for('admin.create_master_option', master_key=master_type.master_key) }}"
+       class="btn btn-primary">
+      Add Option
+    </a>
+
+    <a href="{{ url_for('admin.masters') }}"
+       class="btn btn-secondary">
+      Back
+    </a>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-body">
+
+    {% if options %}
+      <table class="table table-bordered table-striped">
+        <thead>
+          <tr>
+            <th>Display Order</th>
+            <th>Option Value</th>
+            <th>Option Label</th>
+            <th>Status</th>
+            <th style="width: 220px;">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for opt in options %}
+            <tr>
+              <td>{{ opt.display_order }}</td>
+              <td>{{ opt.option_value }}</td>
+              <td>{{ opt.option_label or opt.option_value }}</td>
+              <td>
+                {% if opt.is_active %}
+                  <span class="badge bg-success">Active</span>
+                {% else %}
+                  <span class="badge bg-secondary">Inactive</span>
+                {% endif %}
+              </td>
+              <td>
+                <a href="{{ url_for('admin.edit_master_option', option_id=opt.id) }}"
+                   class="btn btn-sm btn-outline-primary">
+                  Edit
+                </a>
+
+                {% if opt.is_active %}
+                  <form method="POST"
+                        action="{{ url_for('admin.delete_master_option', option_id=opt.id) }}"
+                        style="display:inline-block;"
+                        onsubmit="return confirm('Are you sure you want to deactivate this option?');">
+                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                      Deactivate
+                    </button>
+                  </form>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p>No options added for this master yet.</p>
+    {% endif %}
+
+  </div>
+</div>
+
+{% endblock %}

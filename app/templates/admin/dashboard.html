@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block content %}
+<h3>Admin Dashboard</h3>
+<div class="row g-3 mb-4">
+  <div class="col-md-3"><div class="card"><div class="card-body"><h5>Users</h5><h2>{{ users }}</h2></div></div></div>
+  <div class="col-md-3"><div class="card"><div class="card-body"><h5>Colleges</h5><h2>{{ colleges }}</h2></div></div></div>
+  <div class="col-md-3"><div class="card"><div class="card-body"><h5>Audit Logs</h5><h2>{{ logs }}</h2></div></div></div>
+</div>
+<div class="list-group col-md-4">
+  <a class="list-group-item" href="{{ url_for('admin.users') }}">User Management</a>
+  <a class="list-group-item" href="{{ url_for('admin.colleges') }}">College Management</a>
+  <a class="list-group-item" href="{{ url_for('admin.permissions') }}">User × College Permissions</a>
+  <a class="list-group-item" href="{{ url_for('admin.masters') }}">Master Data</a>
+  <a class="list-group-item" href="{{ url_for('learners.select_college') }}">Learner CRUD</a>
+  <a class="list-group-item" href="{{ url_for('admin.audit_logs') }}">Audit Logs</a>
+</div>
+{% endblock %}

@@ -1,0 +1,61 @@
+# ---------------------------------------------------------
+# Python virtual environments
+# ---------------------------------------------------------
+/venv/
+/.venv/
+env/
+
+# ---------------------------------------------------------
+# Python generated files
+# ---------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# ---------------------------------------------------------
+# Environment variables and secrets
+# ---------------------------------------------------------
+.env
+.env.*
+!.env.example
+
+# ---------------------------------------------------------
+# Keys and certificates
+# ---------------------------------------------------------
+*.pem
+*.key
+*.p12
+*.pfx
+
+# ---------------------------------------------------------
+# IDE and operating-system files
+# ---------------------------------------------------------
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# ---------------------------------------------------------
+# Logs
+# ---------------------------------------------------------
+*.log
+logs/
+
+# ---------------------------------------------------------
+# Runtime-uploaded files
+# These will be stored on the EC2 EBS data volume.
+# ---------------------------------------------------------
+/uploads/bulk
+/uploads/learner_evidence
+/uploads/placement_update_templates
+/uploads/placement_updates
+
+# ---------------------------------------------------------
+# Keep uploads/templates tracked.
+# It contains application template files such as the
+# downloadable bulk-upload template.
+# ---------------------------------------------------------

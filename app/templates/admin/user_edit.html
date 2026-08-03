@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block content %}
+<h3>Edit User</h3>
+<form method="post" class="card card-body col-md-8">
+  <label>Full name</label><input name="full_name" value="{{ user.full_name }}" class="form-control mb-2" required>
+  <label>Email</label><input name="email" value="{{ user.email }}" class="form-control mb-2" required>
+  <label>New Password (optional)</label><input name="password" type="password" class="form-control mb-2">
+  <label>Role</label><select name="role_id" class="form-select mb-2">{% for r in roles %}<option value="{{ r.id }}" {% if user.role_id==r.id %}selected{% endif %}>{{ r.role_name }}</option>{% endfor %}</select>
+  <label>Start date</label><input name="start_date" type="date" value="{{ user.start_date }}" class="form-control mb-2">
+  <label>Expiry date</label><input name="expiry_date" type="date" value="{{ user.expiry_date }}" class="form-control mb-2">
+  <label><input name="is_active" type="checkbox" {% if user.is_active %}checked{% endif %}> Active</label>
+  <button class="btn btn-primary mt-3">Save</button>
+  <hr>
+
+<h5>Reset User Password</h5>
+
+<p class="text-muted">
+  Leave these fields blank to keep the user's existing
+  password unchanged.
+</p>
+
+<div class="row mb-3">
+
+  <div class="col-md-6">
+    <label class="form-label">
+      New Password
+    </label>
+
+    <input type="password"
+           name="password"
+           class="form-control"
+           minlength="8"
+           autocomplete="new-password">
+
+    <div class="form-text">
+      Minimum 8 characters.
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <label class="form-label">
+      Confirm New Password
+    </label>
+
+    <input type="password"
+           name="confirm_password"
+           class="form-control"
+           minlength="8"
+           autocomplete="new-password">
+  </div>
+
+</div>
+</form>
+{% endblock %}

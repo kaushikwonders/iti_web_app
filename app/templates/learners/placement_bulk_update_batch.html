@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h3>Placement Bulk Update Batch {{ batch.id }}</h3>
+
+<p>
+  College: <strong>{{ college.institute_name }}</strong>
+</p>
+
+<div class="mb-3">
+  <a href="{{ url_for(
+      'learners.download_placement_update_template',
+      batch_id=batch.id
+    ) }}"
+    class="btn btn-primary">
+    Download Template
+  </a>
+
+  <a href="{{ url_for(
+      'learners.placement_bulk_update',
+      college_id=college.id
+    ) }}"
+    class="btn btn-secondary">
+    Back
+  </a>
+</div>
+
+<div class="card card-body mb-3">
+  <form method="POST"
+        enctype="multipart/form-data"
+        action="{{ url_for(
+          'learners.upload_placement_bulk_update',
+          batch_id=batch.id
+        ) }}">
+
+    <label class="form-label">
+      Upload completed template
+    </label>
+
+    <input type="file"
+           name="bulk_file"
+           class="form-control mb-2"
+           accept=".xlsx"
+           required>
+
+    <button type="submit" class="btn btn-outline-primary">
+      Upload
+    </button>
+  </form>
+</div>
+
+{% if batch.status in [
+  "uploaded",
+  "validation_failed",
+  "validated"
+] %}
+  <form method="POST"
+        class="d-inline"
+        action="{{ url_for(
+          'learners.validate_placement_bulk_update',
+          batch_id=batch.id
+        ) }}">
+    <button class="btn btn-warning">
+      Validate
+    </button>
+  </form>
+{% endif %}
+
+{% if batch.status == "validated"
+      and batch.invalid_records == 0 %}
+  <form method="POST"
+        class="d-inline"
+        action="{{ url_for(
+          'learners.submit_placement_bulk_update',
+          batch_id=batch.id
+        ) }}"
+        onsubmit="return confirm(
+          'Update all validated learner records?'
+        );">
+    <button class="btn btn-success">
+      Submit Updates
+    </button>
+  </form>
+{% endif %}
+
+{% if batch.status in ["validated", "validation_failed", "submitted"] %}
+
+<hr>
+
+<h5>Validation Results</h5>
+
+<p>
+  Status: <strong>{{ batch.status }}</strong> |
+  Total: {{ batch.total_records }} |
+  Valid: {{ batch.valid_records }} |
+  Invalid: {{ batch.invalid_records }}
+</p>
+
+<div class="table-responsive">
+  <table class="table table-bordered table-sm align-middle">
+    <thead>
+      <tr>
+        <th>Excel Row</th>
+        <th>Mobile No.</th>
+        <th>Email</th>
+        <th>Name</th>
+        <th>Course Completion Status</th>
+        <th>Name of Company</th>
+        <th>Sector</th>
+        <th>Designation</th>
+        <th>Job Location District</th>
+        <th>Gross Income per Month</th>
+        <th>Validation Status</th>
+        <th>Errors</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      {% for row in rows %}
+        <tr>
+          <td>{{ row.row_num }}</td>
+          <td>{{ row.original_mobile_no or "-" }}</td>
+          <td>{{ row.original_email_id or "-" }}</td>
+          <td>
+            {{ row.original_first_name or "" }}
+            {{ row.original_last_name or "" }}
+          </td>
+          <td>{{ row.course_completion_status or "-" }}</td>
+          <td>{{ row.company_name or "-" }}</td>
+          <td>{{ row.sector or "-" }}</td>
+          <td>{{ row.designation or "-" }}</td>
+          <td>{{ row.job_location_district or "-" }}</td>
+          <td>
+            {% if row.gross_income_per_month is not none %}
+              {{ row.gross_income_per_month }}
+            {% else %}
+              -
+            {% endif %}
+          </td>
+          <td>
+            {% if row.validation_status == "valid" %}
+              <span class="badge bg-success">Valid</span>
+            {% elif row.validation_status == "invalid" %}
+              <span class="badge bg-danger">Invalid</span>
+            {% else %}
+              <span class="badge bg-secondary">Not validated</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if row.validation_errors %}
+              <ul class="mb-0 ps-3">
+                {% for error in row.validation_errors %}
+                  <li>{{ error }}</li>
+                {% endfor %}
+              </ul>
+            {% else %}
+              -
+            {% endif %}
+          </td>
+        </tr>
+      {% else %}
+        <tr>
+          <td colspan="12" class="text-center text-muted">
+            No rows found.
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endif %}
+
+{% endblock %}

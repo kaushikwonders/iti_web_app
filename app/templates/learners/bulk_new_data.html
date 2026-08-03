@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h3>Bulk Upload - New Data</h3>
+    <p class="text-muted mb-0">
+      Batch ID: {{ batch.id }} |
+      {{ college.institute_name }} |
+      Status: {{ batch.status }}
+    </p>
+  </div>
+
+  <div>
+    <form method="POST"
+          action="{{ url_for('learners.validate_bulk_upload', batch_id=batch.id) }}"
+          style="display:inline-block;">
+      <button type="submit" class="btn btn-warning">
+        Validate
+      </button>
+    </form>
+
+    {% if batch.status == "validated" and batch.invalid_records == 0 and batch.valid_records > 0 %}
+      <form method="POST"
+            action="{{ url_for('learners.submit_bulk_upload', batch_id=batch.id) }}"
+            style="display:inline-block;"
+            onsubmit="return confirm('Submit all valid records to learner database?');">
+        <button type="submit" class="btn btn-success">
+          Submit to Database
+        </button>
+      </form>
+    {% endif %}
+
+    <a href="{{ url_for('learners.bulk_upload', college_id=college.id) }}"
+       class="btn btn-secondary">
+      Back
+    </a>
+  </div>
+</div>
+
+<div class="row mb-3">
+  <div class="col-md-3">
+    <div class="card card-body">
+      <strong>Total Records</strong>
+      <span>{{ batch.total_records }}</span>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="card card-body text-success">
+      <strong>Valid Records</strong>
+      <span>{{ batch.valid_records }}</span>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="card card-body text-danger">
+      <strong>Invalid Records</strong>
+      <span>{{ batch.invalid_records }}</span>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="card card-body">
+      <strong>Status</strong>
+      <span>{{ batch.status }}</span>
+    </div>
+  </div>
+</div>
+
+<div class="table-responsive">
+  <table class="table table-bordered table-sm align-middle">
+    <thead>
+      <tr>
+        <th>Excel Row</th>
+        <th>Status</th>
+        <th>Errors</th>
+
+        {% for col in columns %}
+          <th>{{ col }}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+
+    <tbody>
+      {% for r in rows %}
+        <tr class="{% if r.validation_status == 'invalid' %}table-danger{% elif r.validation_status == 'valid' %}table-success{% endif %}">
+          <td>{{ r.row_num }}</td>
+
+          <td>{{ r.validation_status }}</td>
+
+          <td>
+            {% if r.validation_errors %}
+              <ul class="mb-0">
+                {% for err in r.validation_errors %}
+                  <li>{{ err }}</li>
+                {% endfor %}
+              </ul>
+            {% else %}
+              -
+            {% endif %}
+          </td>
+
+          {% for col in columns %}
+            <td>{{ r.row_data.get(col) or "-" }}</td>
+          {% endfor %}
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}

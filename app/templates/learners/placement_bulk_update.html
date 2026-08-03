@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h3>Placement Bulk Update - {{ college.institute_name }}</h3>
+
+<p class="text-muted">
+  Download a pre-filled learner template, update only the permitted
+  placement fields, upload, validate, and submit.
+</p>
+
+<form method="POST"
+      action="{{ url_for(
+        'learners.create_placement_update_template',
+        college_id=college.id
+      ) }}">
+  <button type="submit" class="btn btn-primary">
+    Create New Update Template
+  </button>
+
+  <a href="{{ url_for(
+      'learners.college_learners',
+      college_id=college.id
+    ) }}"
+    class="btn btn-secondary">
+    Back
+  </a>
+</form>
+
+<hr>
+
+<table class="table table-bordered table-sm">
+  <thead>
+    <tr>
+      <th>Batch</th>
+      <th>Created</th>
+      <th>Status</th>
+      <th>Total</th>
+      <th>Valid</th>
+      <th>Invalid</th>
+      <th>Updated</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    {% for batch in batches %}
+      <tr>
+        <td>{{ batch.id }}</td>
+        <td>
+          {{ batch.created_at.strftime("%d-%m-%Y %H:%M") }}
+        </td>
+        <td>{{ batch.status }}</td>
+        <td>{{ batch.total_records }}</td>
+        <td>{{ batch.valid_records }}</td>
+        <td>{{ batch.invalid_records }}</td>
+        <td>{{ batch.updated_records }}</td>
+        <td>
+          <a href="{{ url_for(
+              'learners.placement_bulk_update_batch',
+              batch_id=batch.id
+            ) }}"
+            class="btn btn-sm btn-outline-primary">
+            Open
+          </a>
+        </td>
+      </tr>
+    {% else %}
+      <tr>
+        <td colspan="8" class="text-center text-muted">
+          No bulk update batches created.
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}

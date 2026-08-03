@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block content %}
+<h3>Learners - {{ college.institute_name }}</h3>
+<p>{{ college.district }}, {{ college.state }}</p>
+<div class="mb-3">
+  <a class="btn btn-success" href="{{ url_for('learners.add_learner', college_id=college.id) }}">Single Add</a>
+  <a class="btn btn-secondary" href="{{ url_for('learners.bulk_upload', college_id=college.id) }}">Bulk Upload</a>
+  <a class="btn btn-outline-secondary" href="{{ url_for('learners.download_template', college_id=college.id) }}">Download Template</a>
+</div>
+<form class="card card-body mb-3" method="get"><div class="row g-2"><div class="col"><input name="mobile_no" value="{{ request.args.get('mobile_no','') }}" class="form-control" placeholder="Mobile No"></div><div class="col"><input name="email_id" value="{{ request.args.get('email_id','') }}" class="form-control" placeholder="Email"></div><div class="col"><input name="trade_course" value="{{ request.args.get('trade_course','') }}" class="form-control" placeholder="Course"></div><div class="col-auto"><button class="btn btn-primary">Search</button></div></div></form>
+<table class="table table-bordered table-sm"><thead><tr><th>ID</th><th>Mobile</th><th>Email</th><th>Name</th><th>Course</th><th>Status</th><th></th></tr></thead><tbody>
+{% for l in learners %}<tr><td>{{ l.id }}</td><td>{{ l.mobile_no }}</td><td>{{ l.email_id }}</td><td>{{ l.first_name }} {{ l.last_name }}</td><td>{{ l.trade_course }}</td><td>{{ l.course_completion_status }}</td><td><a class="btn btn-sm btn-outline-primary" href="{{ url_for('learners.edit_learner', learner_id=l.id) }}">Edit</a><form method="post" action="{{ url_for('learners.delete_learner', learner_id=l.id) }}" style="display:inline" onsubmit="return confirm('Delete learner?')"><button class="btn btn-sm btn-outline-danger">Delete</button></form></td></tr>{% endfor %}
+</tbody></table>
+{% endblock %}
