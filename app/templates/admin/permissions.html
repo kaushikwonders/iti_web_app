@@ -1,31 +1,138 @@
 {% extends 'base.html' %}
 {% block content %}
+
 <h3>User × College Permissions</h3>
+
 <form method="post" class="card card-body mb-4">
   <div class="row g-2 align-items-end">
     <div class="col">
-  <label>User</label>
-  <select name="user_id" class="form-select" required>
-    {% if users %}
-      {% for u in users %}
-        <option value="{{ u.id }}">
-          {{ u.full_name }} - {{ u.email }}
-        </option>
-      {% endfor %}
-    {% else %}
-      <option value="">No active enrolment/placement users found</option>
-    {% endif %}
-  </select>
-</div>
-    <div class="col"><label>College</label><select name="college_id" class="form-select">{% for c in colleges %}<option value="{{ c.id }}">{{ c.institute_name }}</option>{% endfor %}</select></div>
-    <div class="col-auto"><label><input type="checkbox" name="can_view" checked> View</label></div>
-    <div class="col-auto"><label><input type="checkbox" name="can_add"> Add</label></div>
-    <div class="col-auto"><label><input type="checkbox" name="can_edit"> Edit</label></div>
-    <div class="col-auto"><label><input type="checkbox" name="can_delete"> Delete</label></div>
-    <div class="col-auto"><button class="btn btn-primary">Save</button></div>
+      <label>User</label>
+      <select name="user_id" class="form-select" required>
+        {% if users %}
+          {% for u in users %}
+            <option value="{{ u.id }}">
+              {{ u.full_name }} - {{ u.email }}
+            </option>
+          {% endfor %}
+        {% else %}
+          <option value="">
+            No active enrolment/placement users found
+          </option>
+        {% endif %}
+      </select>
+    </div>
+
+    <div class="col">
+      <label>College</label>
+      <select name="college_id" class="form-select" required>
+        {% for c in colleges %}
+          <option value="{{ c.id }}">{{ c.institute_name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="col-auto">
+      <label>
+        <input type="checkbox" name="can_view" checked> View
+      </label>
+    </div>
+
+    <div class="col-auto">
+      <label>
+        <input type="checkbox" name="can_add"> Add
+      </label>
+    </div>
+
+    <div class="col-auto">
+      <label>
+        <input type="checkbox" name="can_edit"> Edit
+      </label>
+    </div>
+
+    <div class="col-auto">
+      <label>
+        <input type="checkbox" name="can_delete"> Delete
+      </label>
+    </div>
+
+    <div class="col-auto">
+      <button class="btn btn-primary">Save</button>
+    </div>
   </div>
 </form>
-<table class="table table-bordered table-sm"><thead><tr><th>User</th><th>College</th><th>View</th><th>Add</th><th>Edit</th><th>Delete</th></tr></thead><tbody>
-{% for p in perms %}<tr><td>{{ p.user.full_name }}</td><td>{{ p.college.institute_name }}</td><td>{{ p.can_view }}</td><td>{{ p.can_add }}</td><td>{{ p.can_edit }}</td><td>{{ p.can_delete }}</td></tr>{% endfor %}
-</tbody></table>
+
+<form method="get" action="{{ url_for('admin.permissions') }}"
+      class="card card-body mb-4">
+  <h5 class="card-title">Search Permissions</h5>
+
+  <div class="row g-2 align-items-end">
+    <div class="col-md-4">
+      <label for="search_user" class="form-label">User</label>
+      <input type="text"
+             id="search_user"
+             name="user"
+             class="form-control"
+             value="{{ search_filters.user }}"
+             placeholder="User name or email">
+    </div>
+
+    <div class="col-md-4">
+      <label for="search_college" class="form-label">College</label>
+      <input type="text"
+             id="search_college"
+             name="college"
+             class="form-control"
+             value="{{ search_filters.college }}"
+             placeholder="Institute name or code">
+    </div>
+
+    <div class="col-md-4">
+      <button type="submit" class="btn btn-primary">Search</button>
+      <a href="{{ url_for('admin.permissions') }}"
+         class="btn btn-outline-secondary">
+        Clear
+      </a>
+    </div>
+  </div>
+</form>
+
+<div class="d-flex justify-content-between align-items-center mb-2">
+  <h5 class="mb-0">Permission Records</h5>
+  <span class="text-muted">
+    {{ perms|length }} result{% if perms|length != 1 %}s{% endif %}
+  </span>
+</div>
+
+<table class="table table-bordered table-sm">
+  <thead>
+    <tr>
+      <th>User</th>
+      <th>College</th>
+      <th>View</th>
+      <th>Add</th>
+      <th>Edit</th>
+      <th>Delete</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    {% for p in perms %}
+      <tr>
+        <td>{{ p.user.full_name }}</td>
+        <td>{{ p.college.institute_name }}</td>
+        <td>{{ p.can_view }}</td>
+        <td>{{ p.can_add }}</td>
+        <td>{{ p.can_edit }}</td>
+        <td>{{ p.can_delete }}</td>
+      </tr>
+    {% else %}
+      <tr>
+        <td colspan="6" class="text-center text-muted py-4">
+          No permission records found for the selected search filters.
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
 {% endblock %}
