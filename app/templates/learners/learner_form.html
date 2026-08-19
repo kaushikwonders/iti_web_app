@@ -94,6 +94,9 @@
           <input type="text"
                  name="first_name"
                  class="form-control"
+                 pattern="[A-Za-z ]+"
+                 title="Only letters and spaces are allowed."
+                 oninput="this.value = this.value.replace(/[^A-Za-z ]/g, '')"
                  required
                  value="{{ learner.first_name if learner else '' }}">
         </div>
@@ -104,6 +107,9 @@
           <input type="text"
                  name="last_name"
                  class="form-control"
+                 pattern="[A-Za-z ]+"
+                 title="Only letters and spaces are allowed."
+                 oninput="this.value = this.value.replace(/[^A-Za-z ]/g, '')"
                  value="{{ learner.last_name if learner else '' }}">
         </div>
 
@@ -179,6 +185,9 @@
           <input type="text"
                 name="parent_guardian_name"
                 class="form-control"
+                 pattern="[A-Za-z ]+"
+                 title="Only letters and spaces are allowed."
+                 oninput="this.value = this.value.replace(/[^A-Za-z ]/g, '')"
                 value="{{ learner.parent_guardian_name if learner and learner.parent_guardian_name else '' }}">
         </div>
 
