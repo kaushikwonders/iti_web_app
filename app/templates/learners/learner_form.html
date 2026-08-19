@@ -253,6 +253,7 @@
                  title="Enter a 4-digit year."
                  oninput="this.value = this.value.replace(/\D/g, '').slice(0, 4)"
                  value="{{ learner.batch_start_year if learner else '' }}">
+          <div id="batch_start_year_feedback" class="invalid-feedback"></div>
         </div>
 
         <div class="col-md-2">
@@ -280,6 +281,7 @@
                  title="Enter a 4-digit year."
                  oninput="this.value = this.value.replace(/\D/g, '').slice(0, 4)"
                  value="{{ learner.batch_end_year if learner else '' }}">
+          <div id="batch_end_year_feedback" class="invalid-feedback"></div>
         </div>
 
       </div>
@@ -1428,6 +1430,17 @@ function setupDependentDistrictDropdown(stateSelectId, districtSelectId) {
   loadDistricts();
 }
 
+function setInlineFieldError(input, feedbackId, message) {
+  const feedback = document.getElementById(feedbackId);
+
+  input.setCustomValidity(message);
+  input.classList.toggle("is-invalid", Boolean(message));
+
+  if (feedback) {
+    feedback.textContent = message;
+  }
+}
+
 function validateBatchYears() {
   const startYearInput = document.getElementById("batch_start_year");
   const endYearInput = document.getElementById("batch_end_year");
@@ -1436,7 +1449,24 @@ function validateBatchYears() {
     return;
   }
 
-  endYearInput.setCustomValidity("");
+  setInlineFieldError(startYearInput, "batch_start_year_feedback", "");
+  setInlineFieldError(endYearInput, "batch_end_year_feedback", "");
+
+  if (startYearInput.value !== "" && startYearInput.value.length !== 4) {
+    setInlineFieldError(
+      startYearInput,
+      "batch_start_year_feedback",
+      "Batch Start Year must contain exactly 4 digits."
+    );
+  }
+
+  if (endYearInput.value !== "" && endYearInput.value.length !== 4) {
+    setInlineFieldError(
+      endYearInput,
+      "batch_end_year_feedback",
+      "Batch End Year must contain exactly 4 digits."
+    );
+  }
 
   if (startYearInput.value.length !== 4 || endYearInput.value.length !== 4) {
     return;
@@ -1447,11 +1477,15 @@ function validateBatchYears() {
   const yearDifference = endYear - startYear;
 
   if (endYear <= startYear) {
-    endYearInput.setCustomValidity(
+    setInlineFieldError(
+      endYearInput,
+      "batch_end_year_feedback",
       "Batch End Year must be greater than Batch Start Year."
     );
   } else if (yearDifference !== 1 && yearDifference !== 2) {
-    endYearInput.setCustomValidity(
+    setInlineFieldError(
+      endYearInput,
+      "batch_end_year_feedback",
       "The difference between Batch Start Year and Batch End Year must be 1 or 2 years."
     );
   }
@@ -1466,13 +1500,19 @@ function validateEmploymentWorkDuration() {
   );
 
   if (workingDaysInput) {
-    workingDaysInput.setCustomValidity("");
+    setInlineFieldError(
+      workingDaysInput,
+      "employment_working_days_feedback",
+      ""
+    );
 
     if (workingDaysInput.value !== "") {
       const workingDays = Number(workingDaysInput.value);
 
       if (!Number.isInteger(workingDays) || workingDays < 1 || workingDays > 7) {
-        workingDaysInput.setCustomValidity(
+        setInlineFieldError(
+          workingDaysInput,
+          "employment_working_days_feedback",
           "Working days per week must be a whole number between 1 and 7."
         );
       }
@@ -1480,7 +1520,11 @@ function validateEmploymentWorkDuration() {
   }
 
   if (workingHoursInput) {
-    workingHoursInput.setCustomValidity("");
+    setInlineFieldError(
+      workingHoursInput,
+      "employment_working_hours_feedback",
+      ""
+    );
 
     if (workingHoursInput.value !== "") {
       const workingHours = Number(workingHoursInput.value);
@@ -1490,7 +1534,9 @@ function validateEmploymentWorkDuration() {
         workingHours < 1 ||
         workingHours > 24
       ) {
-        workingHoursInput.setCustomValidity(
+        setInlineFieldError(
+          workingHoursInput,
+          "employment_working_hours_feedback",
           "Working hours per day must be a whole number between 1 and 24."
         );
       }
