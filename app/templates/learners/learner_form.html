@@ -250,7 +250,7 @@
                  max="9999"
                  step="1"
                  title="Enter a 4-digit year."
-                 oninput="this.value = this.value.replace(/\\D/g, '').slice(0, 4)"
+                 oninput="this.value = this.value.replace(/\D/g, '').slice(0, 4)"
                  value="{{ learner.batch_start_year if learner else '' }}">
         </div>
 
@@ -276,7 +276,7 @@
                  max="9999"
                  step="1"
                  title="Enter a 4-digit year."
-                 oninput="this.value = this.value.replace(/\\D/g, '').slice(0, 4)"
+                 oninput="this.value = this.value.replace(/\D/g, '').slice(0, 4)"
                  value="{{ learner.batch_end_year if learner else '' }}">
         </div>
 
