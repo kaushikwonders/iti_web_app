@@ -62,7 +62,7 @@
 
   <div class="col-md-4">
     <label class="form-label">How many days in a week do you work?</label>
-    <input type="number" name="working_days_per_week" class="form-control"
+    <input type="number" name="working_days_per_week" id="employment_working_days_per_week" class="form-control"
            min="1" max="7" step="1"
            title="Enter a whole number between 1 and 7."
            value="{{ learner.working_days_per_week if learner else '' }}">
@@ -70,7 +70,7 @@
 
   <div class="col-md-4">
     <label class="form-label">How many hours in a day do you spend working?</label>
-    <input type="number" name="working_hours_per_day" class="form-control"
+    <input type="number" name="working_hours_per_day" id="employment_working_hours_per_day" class="form-control"
            min="1" max="24" step="1"
            title="Enter a whole number between 1 and 24."
            value="{{ learner.working_hours_per_day if learner else '' }}">
