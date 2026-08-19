@@ -142,8 +142,43 @@ def colleges():
     # This must be outside POST block, before render_template
     state_options = get_master_options("state")
 
+    search_filters = {
+        "institute": request.args.get("institute", "").strip(),
+        "state": request.args.get("state", "").strip(),
+        "district": request.args.get("district", "").strip(),
+        "code": request.args.get("code", "").strip(),
+    }
+
+    colleges_query = College.query
+
+    if search_filters["institute"]:
+        colleges_query = colleges_query.filter(
+            College.institute_name.ilike(
+                f'%{search_filters["institute"]}%'
+            )
+        )
+
+    if search_filters["state"]:
+        colleges_query = colleges_query.filter(
+            College.state.ilike(f'%{search_filters["state"]}%')
+        )
+
+    if search_filters["district"]:
+        colleges_query = colleges_query.filter(
+            College.district.ilike(
+                f'%{search_filters["district"]}%'
+            )
+        )
+
+    if search_filters["code"]:
+        colleges_query = colleges_query.filter(
+            College.college_code.ilike(
+                f'%{search_filters["code"]}%'
+            )
+        )
+
     colleges_list = (
-        College.query
+        colleges_query
         .order_by(College.institute_name)
         .all()
     )
@@ -152,6 +187,7 @@ def colleges():
         "admin/colleges.html",
         colleges=colleges_list,
         state_options=state_options,
+        search_filters=search_filters,
     )
 
 @admin_bp.route("/colleges/<int:college_id>/edit", methods=["GET", "POST"])
