@@ -48,6 +48,68 @@
   </div>
 </form>
 
+<form method="get" action="{{ url_for('admin.colleges') }}"
+      class="card card-body mb-4">
+  <h5 class="card-title">Search ITIs</h5>
+
+  <div class="row g-2 align-items-end">
+    <div class="col-md-3">
+      <label for="search_institute" class="form-label">Institute</label>
+      <input type="text"
+             id="search_institute"
+             name="institute"
+             class="form-control"
+             value="{{ search_filters.institute }}"
+             placeholder="Institute name">
+    </div>
+
+    <div class="col-md-2">
+      <label for="search_state" class="form-label">State</label>
+      <input type="text"
+             id="search_state"
+             name="state"
+             class="form-control"
+             value="{{ search_filters.state }}"
+             placeholder="State">
+    </div>
+
+    <div class="col-md-2">
+      <label for="search_district" class="form-label">District</label>
+      <input type="text"
+             id="search_district"
+             name="district"
+             class="form-control"
+             value="{{ search_filters.district }}"
+             placeholder="District">
+    </div>
+
+    <div class="col-md-2">
+      <label for="search_code" class="form-label">Code</label>
+      <input type="text"
+             id="search_code"
+             name="code"
+             class="form-control"
+             value="{{ search_filters.code }}"
+             placeholder="ITI code">
+    </div>
+
+    <div class="col-md-3">
+      <button type="submit" class="btn btn-primary">Search</button>
+      <a href="{{ url_for('admin.colleges') }}"
+         class="btn btn-outline-secondary">
+        Clear
+      </a>
+    </div>
+  </div>
+</form>
+
+<div class="d-flex justify-content-between align-items-center mb-2">
+  <h5 class="mb-0">ITIs</h5>
+  <span class="text-muted">
+    {{ colleges|length }} result{% if colleges|length != 1 %}s{% endif %}
+  </span>
+</div>
+
 <table class="table table-bordered table-sm">
   <thead>
     <tr>
@@ -77,6 +139,12 @@
              class="btn btn-sm btn-outline-primary">
             Edit
           </a>
+        </td>
+      </tr>
+    {% else %}
+      <tr>
+        <td colspan="5" class="text-center text-muted py-4">
+          No ITIs found for the selected search filters.
         </td>
       </tr>
     {% endfor %}
