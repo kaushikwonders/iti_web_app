@@ -221,10 +221,15 @@
 
         <div class="col-md-2">
           <label class="form-label">Batch Start Month</label>
-          <input type="text"
-                 name="batch_start_month"
-                 class="form-control"
-                 value="{{ learner.batch_start_month if learner else '' }}">
+          <select name="batch_start_month" class="form-select">
+            <option value="">-- Select --</option>
+            {% for month in range(1, 13) %}
+              <option value="{{ month }}"
+                {% if learner and (learner.batch_start_month|string) == (month|string) %}selected{% endif %}>
+                {{ month }}
+              </option>
+            {% endfor %}
+          </select>
         </div>
 
         <div class="col-md-2">
@@ -237,10 +242,15 @@
 
         <div class="col-md-2">
           <label class="form-label">Batch End Month</label>
-          <input type="text"
-                 name="batch_end_month"
-                 class="form-control"
-                 value="{{ learner.batch_end_month if learner else '' }}">
+          <select name="batch_end_month" class="form-select">
+            <option value="">-- Select --</option>
+            {% for month in range(1, 13) %}
+              <option value="{{ month }}"
+                {% if learner and (learner.batch_end_month|string) == (month|string) %}selected{% endif %}>
+                {{ month }}
+              </option>
+            {% endfor %}
+          </select>
         </div>
 
         <div class="col-md-2">
