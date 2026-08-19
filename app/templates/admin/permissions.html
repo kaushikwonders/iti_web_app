@@ -107,6 +107,7 @@
   <thead>
     <tr>
       <th>User</th>
+      <th>Role</th>
       <th>College</th>
       <th>View</th>
       <th>Add</th>
@@ -119,6 +120,7 @@
     {% for p in perms %}
       <tr>
         <td>{{ p.user.full_name }}</td>
+        <td>{{ p.user.role.role_name if p.user.role else "-" }}</td>
         <td>{{ p.college.institute_name }}</td>
         <td>{{ p.can_view }}</td>
         <td>{{ p.can_add }}</td>
@@ -127,7 +129,7 @@
       </tr>
     {% else %}
       <tr>
-        <td colspan="6" class="text-center text-muted py-4">
+        <td colspan="7" class="text-center text-muted py-4">
           No permission records found for the selected search filters.
         </td>
       </tr>
