@@ -124,10 +124,11 @@
       <div class="row mb-3">
 
         <div class="col-md-4">
-          <label class="form-label">Date of Birth</label>
+          <label class="form-label">Date of Birth <span class="text-danger">*</span></label>
           <input type="date"
                  name="date_of_birth"
                  class="form-control"
+                 required
                  value="{{ learner.date_of_birth if learner and learner.date_of_birth else '' }}">
         </div>
 
@@ -251,11 +252,12 @@
         </div>
 
         <div class="col-md-2">
-          <label class="form-label">Batch Start Year</label>
+          <label class="form-label">Batch Start Year <span class="text-danger">*</span></label>
           <input type="number"
                  name="batch_start_year"
                  id="batch_start_year"
                  class="form-control"
+                 required
                  min="1000"
                  max="9999"
                  step="1"
@@ -279,11 +281,12 @@
         </div>
 
         <div class="col-md-2">
-          <label class="form-label">Batch End Year</label>
+          <label class="form-label">Batch End Year <span class="text-danger">*</span></label>
           <input type="number"
                  name="batch_end_year"
                  id="batch_end_year"
                  class="form-control"
+                 required
                  min="1000"
                  max="9999"
                  step="1"
