@@ -57,9 +57,13 @@
           <label class="form-label">Mobile No <span class="text-danger">*</span></label>
           <input type="text"
                  name="mobile_no"
+                 id="mobile_no"
                  class="form-control"
+                 inputmode="numeric"
                  maxlength="10"
+                 pattern="[5-9][0-9]{9}"
                  value="{{ learner.mobile_no if learner and learner.mobile_no else '' }}">
+          <div id="mobile_no_feedback" class="invalid-feedback"></div>
                  
         </div>
 
@@ -67,8 +71,10 @@
           <label class="form-label">Email Id <span class="text-danger">*</span></label>
           <input type="email"
                  name="email_id"
+                 id="email_id"
                  class="form-control"
                  value="{{ learner.email_id if learner and learner.email_id else '' }}">
+          <div id="email_id_feedback" class="invalid-feedback"></div>
                  
         </div>
 
@@ -195,10 +201,13 @@
           <label class="form-label">Parent/Guardian Contact Number</label>
           <input type="text"
                 name="parent_guardian_contact_no"
+                id="parent_guardian_contact_no"
                 class="form-control"
+                inputmode="numeric"
                 maxlength="10"
-                pattern="[0-9]{10}"
+                pattern="[5-9][0-9]{9}"
                 value="{{ learner.parent_guardian_contact_no if learner and learner.parent_guardian_contact_no else '' }}">
+          <div id="parent_guardian_contact_no_feedback" class="invalid-feedback"></div>
         </div>
 
       </div>
@@ -1544,6 +1553,84 @@ function validateEmploymentWorkDuration() {
   }
 }
 
+function validateContactFields() {
+  const mobileInput = document.getElementById("mobile_no");
+  const emailInput = document.getElementById("email_id");
+  const guardianContactInput = document.getElementById(
+    "parent_guardian_contact_no"
+  );
+
+  if (mobileInput) {
+    setInlineFieldError(mobileInput, "mobile_no_feedback", "");
+
+    if (mobileInput.value !== "") {
+      if (!/^\d{10}$/.test(mobileInput.value)) {
+        setInlineFieldError(
+          mobileInput,
+          "mobile_no_feedback",
+          "Mobile No must contain exactly 10 digits."
+        );
+      } else if (/^[0-4]/.test(mobileInput.value)) {
+        setInlineFieldError(
+          mobileInput,
+          "mobile_no_feedback",
+          "Mobile No must start with a digit between 5 and 9."
+        );
+      }
+    }
+  }
+
+  if (emailInput) {
+    setInlineFieldError(emailInput, "email_id_feedback", "");
+
+    if (
+      emailInput.value !== "" &&
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value)
+    ) {
+      setInlineFieldError(
+        emailInput,
+        "email_id_feedback",
+        "Please enter a valid email address."
+      );
+    }
+  }
+
+  if (guardianContactInput) {
+    setInlineFieldError(
+      guardianContactInput,
+      "parent_guardian_contact_no_feedback",
+      ""
+    );
+
+    if (guardianContactInput.value !== "") {
+      if (!/^\d{10}$/.test(guardianContactInput.value)) {
+        setInlineFieldError(
+          guardianContactInput,
+          "parent_guardian_contact_no_feedback",
+          "Parent/Guardian Contact Number must contain exactly 10 digits."
+        );
+      } else if (/^[0-4]/.test(guardianContactInput.value)) {
+        setInlineFieldError(
+          guardianContactInput,
+          "parent_guardian_contact_no_feedback",
+          "Parent/Guardian Contact Number must start with a digit between 5 and 9."
+        );
+      }
+    }
+  }
+}
+
+function attachPhoneValidation(input) {
+  if (!input) {
+    return;
+  }
+
+  input.addEventListener("input", function () {
+    input.value = input.value.replace(/\D/g, "").slice(0, 10);
+    validateContactFields();
+  });
+}
+
 document.addEventListener("DOMContentLoaded", function () {
   const statusSelect = document.getElementById("course_completion_status");
   const selfEmploymentTypeSelect = document.getElementById("self_employment_type");
@@ -1555,6 +1642,20 @@ document.addEventListener("DOMContentLoaded", function () {
   const employmentWorkingHoursInput = document.getElementById(
     "employment_working_hours_per_day"
   );
+  const mobileInput = document.getElementById("mobile_no");
+  const emailInput = document.getElementById("email_id");
+  const guardianContactInput = document.getElementById(
+    "parent_guardian_contact_no"
+  );
+
+  attachPhoneValidation(mobileInput);
+  attachPhoneValidation(guardianContactInput);
+
+  if (emailInput) {
+    emailInput.addEventListener("input", validateContactFields);
+  }
+
+  validateContactFields();
 
   if (batchStartYearInput && batchEndYearInput) {
     batchStartYearInput.addEventListener("input", validateBatchYears);
