@@ -1457,17 +1457,80 @@ function validateBatchYears() {
   }
 }
 
+function validateEmploymentWorkDuration() {
+  const workingDaysInput = document.getElementById(
+    "employment_working_days_per_week"
+  );
+  const workingHoursInput = document.getElementById(
+    "employment_working_hours_per_day"
+  );
+
+  if (workingDaysInput) {
+    workingDaysInput.setCustomValidity("");
+
+    if (workingDaysInput.value !== "") {
+      const workingDays = Number(workingDaysInput.value);
+
+      if (!Number.isInteger(workingDays) || workingDays < 1 || workingDays > 7) {
+        workingDaysInput.setCustomValidity(
+          "Working days per week must be a whole number between 1 and 7."
+        );
+      }
+    }
+  }
+
+  if (workingHoursInput) {
+    workingHoursInput.setCustomValidity("");
+
+    if (workingHoursInput.value !== "") {
+      const workingHours = Number(workingHoursInput.value);
+
+      if (
+        !Number.isInteger(workingHours) ||
+        workingHours < 1 ||
+        workingHours > 24
+      ) {
+        workingHoursInput.setCustomValidity(
+          "Working hours per day must be a whole number between 1 and 24."
+        );
+      }
+    }
+  }
+}
+
 document.addEventListener("DOMContentLoaded", function () {
   const statusSelect = document.getElementById("course_completion_status");
   const selfEmploymentTypeSelect = document.getElementById("self_employment_type");
   const batchStartYearInput = document.getElementById("batch_start_year");
   const batchEndYearInput = document.getElementById("batch_end_year");
+  const employmentWorkingDaysInput = document.getElementById(
+    "employment_working_days_per_week"
+  );
+  const employmentWorkingHoursInput = document.getElementById(
+    "employment_working_hours_per_day"
+  );
 
   if (batchStartYearInput && batchEndYearInput) {
     batchStartYearInput.addEventListener("input", validateBatchYears);
     batchEndYearInput.addEventListener("input", validateBatchYears);
     validateBatchYears();
   }
+
+  if (employmentWorkingDaysInput) {
+    employmentWorkingDaysInput.addEventListener(
+      "input",
+      validateEmploymentWorkDuration
+    );
+  }
+
+  if (employmentWorkingHoursInput) {
+    employmentWorkingHoursInput.addEventListener(
+      "input",
+      validateEmploymentWorkDuration
+    );
+  }
+
+  validateEmploymentWorkDuration();
 
   
   hideEvidenceTypeSubsections();
