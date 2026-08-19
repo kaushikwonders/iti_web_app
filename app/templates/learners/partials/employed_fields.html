@@ -23,12 +23,25 @@
 <div class="row mb-3">
   <div class="col-md-4">
     <label class="form-label">Job Location District</label>
-    <select name="job_location_district" class="form-select">
-      <option value="">-- Select --</option>
+    <input type="text"
+           name="job_location_district"
+           id="job_location_district"
+           class="form-control"
+           list="job_location_district_options"
+           autocomplete="off"
+           placeholder="Type to search district"
+           value="{{ learner.job_location_district if learner and learner.job_location_district else '' }}">
+
+    <datalist id="job_location_district_options">
       {% for opt in dropdowns.job_location_district %}
-        <option value="{{ opt.option_value }}" {% if learner and learner.job_location_district == opt.option_value %}selected{% endif %}>{{ opt.option_label or opt.option_value }}</option>
+        <option value="{{ opt.option_value }}">
+          {{ opt.option_label or opt.option_value }}
+        </option>
       {% endfor %}
-    </select>
+    </datalist>
+
+    <div id="job_location_district_feedback"
+         class="invalid-feedback"></div>
   </div>
 
   <div class="col-md-4">
