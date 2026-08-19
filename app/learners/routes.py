@@ -1371,7 +1371,31 @@ def create_placement_update_template(college_id):
         columns=PLACEMENT_BULK_UPDATE_COLUMNS,
     )
 
-    df.to_excel(file_path, index=False)
+    reference_data = pd.DataFrame({
+        "course_completion_status": pd.Series(
+            get_ordered_active_master_values(
+                "course_completion_status"
+            )
+        ),
+        "sector": pd.Series(
+            get_ordered_active_master_values("sector")
+        ),
+        "job_location_district": pd.Series(
+            get_ordered_active_master_values("district")
+        ),
+    })
+
+    with pd.ExcelWriter(file_path, engine="openpyxl") as writer:
+        df.to_excel(
+            writer,
+            sheet_name="Sheet1",
+            index=False,
+        )
+        reference_data.to_excel(
+            writer,
+            sheet_name="Sheet2",
+            index=False,
+        )
 
     batch.stored_file_name = file_name
     batch.file_path = file_path
@@ -1685,6 +1709,32 @@ def normalize_date(value):
         return parsed.date().isoformat()
     except Exception:
         return value
+
+
+def get_ordered_active_master_values(master_key):
+    master_type = MasterType.query.filter_by(
+        master_key=master_key,
+        is_active=True,
+    ).first()
+
+    if not master_type:
+        return []
+
+    options = (
+        MasterOption.query
+        .filter_by(
+            master_type_id=master_type.id,
+            is_active=True,
+        )
+        .order_by(
+            MasterOption.display_order,
+            MasterOption.option_label,
+            MasterOption.option_value,
+        )
+        .all()
+    )
+
+    return [option.option_value for option in options]
 
 
 def get_active_master_values(master_key):
