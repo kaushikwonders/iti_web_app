@@ -261,8 +261,44 @@ def permissions():
         log_action("ASSIGN_PERMISSION", "user_college_permissions", perm.id)
         flash("Permission saved", "success")
         return redirect(url_for("admin.permissions"))
-    perms = UserCollegePermission.query.order_by(UserCollegePermission.id.desc()).all()
-    return render_template("admin/permissions.html", users=users, colleges=colleges, perms=perms)
+    search_filters = {
+        "user": request.args.get("user", "").strip(),
+        "college": request.args.get("college", "").strip(),
+    }
+
+    permissions_query = (
+        UserCollegePermission.query
+        .join(User, UserCollegePermission.user_id == User.id)
+        .join(College, UserCollegePermission.college_id == College.id)
+    )
+
+    if search_filters["user"]:
+        user_pattern = f'%{search_filters["user"]}%'
+        permissions_query = permissions_query.filter(
+            User.full_name.ilike(user_pattern)
+            | User.email.ilike(user_pattern)
+        )
+
+    if search_filters["college"]:
+        college_pattern = f'%{search_filters["college"]}%'
+        permissions_query = permissions_query.filter(
+            College.institute_name.ilike(college_pattern)
+            | College.college_code.ilike(college_pattern)
+        )
+
+    perms = (
+        permissions_query
+        .order_by(UserCollegePermission.id.desc())
+        .all()
+    )
+
+    return render_template(
+        "admin/permissions.html",
+        users=users,
+        colleges=colleges,
+        perms=perms,
+        search_filters=search_filters,
+    )
 
 @admin_bp.route("/masters")
 @login_required
