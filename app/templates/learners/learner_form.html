@@ -1556,6 +1556,41 @@ function validateEmploymentWorkDuration() {
   }
 }
 
+function validateJobLocationDistrict() {
+  const districtInput = document.getElementById("job_location_district");
+  const districtOptions = document.getElementById(
+    "job_location_district_options"
+  );
+
+  if (!districtInput || !districtOptions) {
+    return;
+  }
+
+  setInlineFieldError(
+    districtInput,
+    "job_location_district_feedback",
+    ""
+  );
+
+  if (districtInput.value === "") {
+    return;
+  }
+
+  const validDistricts = Array.from(districtOptions.options).map(
+    function (option) {
+      return option.value;
+    }
+  );
+
+  if (!validDistricts.includes(districtInput.value)) {
+    setInlineFieldError(
+      districtInput,
+      "job_location_district_feedback",
+      "Please select a district from the available list."
+    );
+  }
+}
+
 function validateContactFields() {
   const mobileInput = document.getElementById("mobile_no");
   const emailInput = document.getElementById("email_id");
@@ -1650,6 +1685,21 @@ document.addEventListener("DOMContentLoaded", function () {
   const guardianContactInput = document.getElementById(
     "parent_guardian_contact_no"
   );
+  const jobLocationDistrictInput = document.getElementById(
+    "job_location_district"
+  );
+
+  if (jobLocationDistrictInput) {
+    jobLocationDistrictInput.addEventListener(
+      "input",
+      validateJobLocationDistrict
+    );
+    jobLocationDistrictInput.addEventListener(
+      "change",
+      validateJobLocationDistrict
+    );
+    validateJobLocationDistrict();
+  }
 
   attachPhoneValidation(mobileInput);
   attachPhoneValidation(guardianContactInput);
