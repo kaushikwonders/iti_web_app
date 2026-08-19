@@ -245,6 +245,7 @@
           <label class="form-label">Batch Start Year</label>
           <input type="number"
                  name="batch_start_year"
+                 id="batch_start_year"
                  class="form-control"
                  min="1000"
                  max="9999"
@@ -271,6 +272,7 @@
           <label class="form-label">Batch End Year</label>
           <input type="number"
                  name="batch_end_year"
+                 id="batch_end_year"
                  class="form-control"
                  min="1000"
                  max="9999"
@@ -1426,9 +1428,46 @@ function setupDependentDistrictDropdown(stateSelectId, districtSelectId) {
   loadDistricts();
 }
 
+function validateBatchYears() {
+  const startYearInput = document.getElementById("batch_start_year");
+  const endYearInput = document.getElementById("batch_end_year");
+
+  if (!startYearInput || !endYearInput) {
+    return;
+  }
+
+  endYearInput.setCustomValidity("");
+
+  if (startYearInput.value.length !== 4 || endYearInput.value.length !== 4) {
+    return;
+  }
+
+  const startYear = Number(startYearInput.value);
+  const endYear = Number(endYearInput.value);
+  const yearDifference = endYear - startYear;
+
+  if (endYear <= startYear) {
+    endYearInput.setCustomValidity(
+      "Batch End Year must be greater than Batch Start Year."
+    );
+  } else if (yearDifference !== 1 && yearDifference !== 2) {
+    endYearInput.setCustomValidity(
+      "The difference between Batch Start Year and Batch End Year must be 1 or 2 years."
+    );
+  }
+}
+
 document.addEventListener("DOMContentLoaded", function () {
   const statusSelect = document.getElementById("course_completion_status");
   const selfEmploymentTypeSelect = document.getElementById("self_employment_type");
+  const batchStartYearInput = document.getElementById("batch_start_year");
+  const batchEndYearInput = document.getElementById("batch_end_year");
+
+  if (batchStartYearInput && batchEndYearInput) {
+    batchStartYearInput.addEventListener("input", validateBatchYears);
+    batchEndYearInput.addEventListener("input", validateBatchYears);
+    validateBatchYears();
+  }
 
   
   hideEvidenceTypeSubsections();
