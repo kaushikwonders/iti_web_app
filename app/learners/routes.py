@@ -2317,6 +2317,34 @@ def validate_placement_bulk_update(batch_id):
             uploaded.get("gross_income_per_month")
         )
 
+        dependent_placement_values = {
+            "company_name": company_name,
+            "sector": sector,
+            "designation": designation,
+            "job_location_district": district,
+            "gross_income_per_month": income,
+        }
+
+        populated_dependent_fields = [
+            field_name
+            for field_name, field_value
+            in dependent_placement_values.items()
+            if field_value is not None
+        ]
+
+        if (
+            course_completion_status is None
+            and populated_dependent_fields
+        ):
+            errors.append(
+                (
+                    "When course_completion_status is blank, the "
+                    "following fields must also be blank: "
+                    + ", ".join(populated_dependent_fields)
+                    + "."
+                )
+            )
+
         if ( course_completion_status and course_completion_status not in valid_course_statuses):
             errors.append(
                 (
