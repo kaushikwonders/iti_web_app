@@ -2345,6 +2345,66 @@ def validate_placement_bulk_update(batch_id):
                 )
             )
 
+        normalized_course_status = (
+            course_completion_status.casefold()
+            if course_completion_status
+            else ""
+        )
+
+        statuses_without_employment_details = {
+            "higher studies",
+            "drop out",
+            "interested for job",
+            "not interested for job",
+        }
+
+        if (
+            normalized_course_status
+            in statuses_without_employment_details
+        ):
+            prohibited_fields = [
+                field_name
+                for field_name, field_value
+                in dependent_placement_values.items()
+                if field_value is not None
+            ]
+
+            if prohibited_fields:
+                errors.append(
+                    (
+                        f"When course_completion_status is "
+                        f"'{course_completion_status}', the following "
+                        "fields must be blank: "
+                        + ", ".join(prohibited_fields)
+                        + "."
+                    )
+                )
+
+        if normalized_course_status == "self employed":
+            self_employed_restricted_values = {
+                "company_name": company_name,
+                "designation": designation,
+                "job_location_district": district,
+            }
+
+            prohibited_fields = [
+                field_name
+                for field_name, field_value
+                in self_employed_restricted_values.items()
+                if field_value is not None
+            ]
+
+            if prohibited_fields:
+                errors.append(
+                    (
+                        "When course_completion_status is "
+                        "'Self Employed', the following fields "
+                        "must be blank: "
+                        + ", ".join(prohibited_fields)
+                        + "."
+                    )
+                )
+
         if ( course_completion_status and course_completion_status not in valid_course_statuses):
             errors.append(
                 (
