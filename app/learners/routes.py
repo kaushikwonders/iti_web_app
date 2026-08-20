@@ -1773,6 +1773,7 @@ def validate_bulk_row(row_data, existing_combos_in_file):
     batch_end_month = row_data.get("batch_end_month")
     batch_start_year = row_data.get("batch_start_year")
     batch_end_year = row_data.get("batch_end_year")
+    date_of_birth = row_data.get("date_of_birth")
 
     if not mobile_no and not email_id:
         errors.append("Either mobile_no or email_id is required.")
@@ -1785,6 +1786,15 @@ def validate_bulk_row(row_data, existing_combos_in_file):
 
     if not trade_course:
         errors.append("trade_course is required.")
+
+    if batch_start_year is None:
+        errors.append("batch_start_year is required.")
+
+    if batch_end_year is None:
+        errors.append("batch_end_year is required.")
+
+    if date_of_birth is None:
+        errors.append("date_of_birth is required.")
 
     if mobile_no:
         mobile_text = str(mobile_no)
