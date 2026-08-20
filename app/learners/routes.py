@@ -1766,8 +1766,11 @@ def validate_bulk_row(row_data, existing_combos_in_file):
     email_id = row_data.get("email_id")
     
     first_name = row_data.get("first_name")
+    last_name = row_data.get("last_name")
     gender = row_data.get("gender")
     trade_course = row_data.get("trade_course")
+    batch_start_month = row_data.get("batch_start_month")
+    batch_end_month = row_data.get("batch_end_month")
     batch_start_year = row_data.get("batch_start_year")
     batch_end_year = row_data.get("batch_end_year")
 
@@ -1784,24 +1787,82 @@ def validate_bulk_row(row_data, existing_combos_in_file):
         errors.append("trade_course is required.")
 
     if mobile_no:
-        if not str(mobile_no).isdigit() or len(str(mobile_no)) != 10:
+        mobile_text = str(mobile_no)
+
+        if not mobile_text.isdigit() or len(mobile_text) != 10:
             errors.append("mobile_no must be exactly 10 digits.")
+        elif mobile_text[0] in "01234":
+            errors.append(
+                "mobile_no must start with a digit between 5 and 9."
+            )
 
     if email_id:
         if "@" not in email_id:
             errors.append("email_id must be valid and contain @.")
 
-    if batch_start_year:
-        if not isinstance(batch_start_year, int):
-            errors.append("batch_start_year must be a valid 4-digit year.")
-        elif batch_start_year < 1900 or batch_start_year > 2100:
-            errors.append("batch_start_year must be between 1900 and 2100.")
+    name_pattern = re.compile(r"^[A-Za-z ]+$")
 
-    if batch_end_year:
-        if not isinstance(batch_end_year, int):
-            errors.append("batch_end_year must be a valid 4-digit year.")
-        elif batch_end_year < 1900 or batch_end_year > 2100:
-            errors.append("batch_end_year must be between 1900 and 2100.")
+    if first_name and not name_pattern.fullmatch(str(first_name)):
+        errors.append(
+            "first_name must contain only letters and spaces."
+        )
+
+    if last_name and not name_pattern.fullmatch(str(last_name)):
+        errors.append(
+            "last_name must contain only letters and spaces."
+        )
+
+    if batch_start_month is not None:
+        if (
+            not isinstance(batch_start_month, int)
+            or batch_start_month < 1
+            or batch_start_month > 12
+        ):
+            errors.append(
+                "batch_start_month must be a whole number between 1 and 12."
+            )
+
+    if batch_end_month is not None:
+        if (
+            not isinstance(batch_end_month, int)
+            or batch_end_month < 1
+            or batch_end_month > 12
+        ):
+            errors.append(
+                "batch_end_month must be a whole number between 1 and 12."
+            )
+
+    start_year_is_valid = (
+        isinstance(batch_start_year, int)
+        and 1000 <= batch_start_year <= 9999
+    )
+    end_year_is_valid = (
+        isinstance(batch_end_year, int)
+        and 1000 <= batch_end_year <= 9999
+    )
+
+    if batch_start_year is not None and not start_year_is_valid:
+        errors.append(
+            "batch_start_year must be a valid 4-digit year."
+        )
+
+    if batch_end_year is not None and not end_year_is_valid:
+        errors.append(
+            "batch_end_year must be a valid 4-digit year."
+        )
+
+    if start_year_is_valid and end_year_is_valid:
+        year_difference = batch_end_year - batch_start_year
+
+        if batch_start_year >= batch_end_year:
+            errors.append(
+                "batch_start_year must be lower than batch_end_year."
+            )
+        elif year_difference not in (1, 2):
+            errors.append(
+                "The difference between batch_start_year and "
+                "batch_end_year must be 1 or 2 years."
+            )
 
     combo = (
         mobile_no if mobile_no else "__NULL__",
@@ -1937,7 +1998,12 @@ def bulk_upload(college_id):
                 if col == "email_id":
                     value = normalize_email(value)
 
-                if col in ["batch_start_year", "batch_end_year"]:
+                if col in [
+                    "batch_start_month",
+                    "batch_end_month",
+                    "batch_start_year",
+                    "batch_end_year",
+                ]:
                     value = normalize_year(value)
 
                 if col == "date_of_birth":
