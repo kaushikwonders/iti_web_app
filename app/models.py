@@ -204,6 +204,10 @@ class Learner(db.Model):
     parent_guardian_name = db.Column(db.String(255))
     parent_guardian_contact_no = db.Column(db.String(15))
 
+    contactable = db.Column(db.String(10))
+    not_contactable_reason = db.Column(db.String(255))
+    remarks = db.Column(db.Text)
+
     college = db.relationship("College", backref="learners")
 
     evidence_files = db.relationship(

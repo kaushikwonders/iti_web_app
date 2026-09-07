@@ -1,6 +1,6 @@
 import os
 import uuid
-from datetime import datetime
+from datetime import datetime, timedelta
 import re
 from pathlib import Path
 
@@ -78,7 +78,7 @@ def get_college_permission(college_id):
         "can_view": permission.can_view,
         "can_add": permission.can_add,
         "can_edit": permission.can_edit,
-        "can_delete": permission.can_delete,
+        "can_delete": (permission.can_delete and not current_user.has_role("placement")) ,
     }
 
 
@@ -119,22 +119,71 @@ def college_learners(college_id):
     if not permission["can_view"]:
         abort(403)
 
+    # Existing filters
     search = request.args.get("search", "").strip()
-    trade_course = request.args.get("trade_course", "").strip()
-    course_completion_status = request.args.get("course_completion_status", "").strip()
 
-    # New filters
-    mobile_no = request.args.get("mobile_no", "").strip()
-    batch_start_year = request.args.get("batch_start_year", "").strip()
-    batch_end_year = request.args.get("batch_end_year", "").strip()
-    sector = request.args.get("sector", "").strip()
+    trade_course = request.args.get(
+        "trade_course",
+        "",
+    ).strip()
+
+    course_completion_status = request.args.get(
+        "course_completion_status",
+        "",
+    ).strip()
+
+    mobile_no = request.args.get(
+        "mobile_no",
+        "",
+    ).strip()
+
+    batch_start_year = request.args.get(
+        "batch_start_year",
+        "",
+    ).strip()
+
+    batch_end_year = request.args.get(
+        "batch_end_year",
+        "",
+    ).strip()
+
+    sector = request.args.get(
+        "sector",
+        "",
+    ).strip()
+
+    updated_from_date = request.args.get(
+        "updated_from_date",
+        "",
+    ).strip()
+
+    updated_till_date = request.args.get(
+        "updated_till_date",
+        "",
+    ).strip()
+
+    # Contactability filters
+    contactable = request.args.get(
+        "contactable",
+        "",
+    ).strip()
+
+    not_contactable_reason = request.args.get(
+        "not_contactable_reason",
+        "",
+    ).strip()
+
+    remarks = request.args.get(
+        "remarks",
+        "",
+    ).strip()
 
     query = Learner.query.filter_by(
         college_id=college.id,
         is_deleted=False,
     )
 
-    # Existing generic search
+    # Generic learner search
     if search:
         query = query.filter(
             or_(
@@ -145,33 +194,137 @@ def college_learners(college_id):
             )
         )
 
-    # Existing filters
     if trade_course:
-        query = query.filter(Learner.trade_course == trade_course)
+        query = query.filter(
+            Learner.trade_course == trade_course
+        )
 
     if course_completion_status:
         query = query.filter(
-            Learner.course_completion_status == course_completion_status
+            Learner.course_completion_status
+            == course_completion_status
         )
 
-    # New filters
     if mobile_no:
-        query = query.filter(Learner.mobile_no.like(f"%{mobile_no}%"))
+        query = query.filter(
+            Learner.mobile_no.like(f"%{mobile_no}%")
+        )
 
     if batch_start_year:
-        query = query.filter(Learner.batch_start_year == batch_start_year)
+        query = query.filter(
+            Learner.batch_start_year == batch_start_year
+        )
 
     if batch_end_year:
-        query = query.filter(Learner.batch_end_year == batch_end_year)
+        query = query.filter(
+            Learner.batch_end_year == batch_end_year
+        )
 
     if sector:
-        query = query.filter(Learner.sector == sector)
+        query = query.filter(
+            Learner.sector == sector
+        )
 
-    learners = query.order_by(Learner.created_at.desc()).all()
+    # Contactable filter
+    if contactable:
+        query = query.filter(
+            Learner.contactable == contactable
+        )
 
-    trade_courses = get_master_options("trade_course")
-    course_statuses = get_master_options("course_completion_status")
-    sectors = get_master_options("sector")
+    # Reason for not being contactable filter
+    if not_contactable_reason:
+        query = query.filter(
+            Learner.not_contactable_reason
+            == not_contactable_reason
+        )
+
+    # Partial text search inside Remarks
+    if remarks:
+        query = query.filter(
+            Learner.remarks.like(f"%{remarks}%")
+        )
+
+    # Last Updated date filters
+    updated_from_datetime = None
+    updated_till_datetime = None
+
+    try:
+        if updated_from_date:
+            updated_from_datetime = datetime.strptime(
+                updated_from_date,
+                "%Y-%m-%d",
+            )
+
+        if updated_till_date:
+            updated_till_datetime = datetime.strptime(
+                updated_till_date,
+                "%Y-%m-%d",
+            )
+
+    except ValueError:
+        flash(
+            "Please provide valid Last Updated dates.",
+            "danger",
+        )
+
+        updated_from_datetime = None
+        updated_till_datetime = None
+
+    if (
+        updated_from_datetime
+        and updated_till_datetime
+        and updated_from_datetime > updated_till_datetime
+    ):
+        flash(
+            "Last Updated From Date cannot be later than "
+            "Last Updated Till Date.",
+            "danger",
+        )
+
+    else:
+        if updated_from_datetime:
+            query = query.filter(
+                Learner.updated_at >= updated_from_datetime
+            )
+
+        if updated_till_datetime:
+            # Includes the complete selected Till Date.
+            next_day = (
+                updated_till_datetime
+                + timedelta(days=1)
+            )
+
+            query = query.filter(
+                Learner.updated_at < next_day
+            )
+
+    learners = (
+        query
+        .order_by(Learner.created_at.desc())
+        .all()
+    )
+
+    # Existing master lists
+    trade_courses = get_master_options(
+        "trade_course"
+    )
+
+    course_statuses = get_master_options(
+        "course_completion_status"
+    )
+
+    sectors = get_master_options(
+        "sector"
+    )
+
+    # Contactability master lists
+    contactable_options = get_master_options(
+        "contactable"
+    )
+
+    not_contactable_reason_options = get_master_options(
+        "not_contactable_reason"
+    )
 
     return render_template(
         "learners/college_learners.html",
@@ -180,18 +333,33 @@ def college_learners(college_id):
         permission=permission,
 
         search=search,
-        selected_trade_course=trade_course,
-        selected_course_completion_status=course_completion_status,
 
-        # New selected filter values
+        selected_trade_course=trade_course,
+        selected_course_completion_status=(
+            course_completion_status
+        ),
         selected_mobile_no=mobile_no,
         selected_batch_start_year=batch_start_year,
         selected_batch_end_year=batch_end_year,
         selected_sector=sector,
 
+        selected_updated_from_date=updated_from_date,
+        selected_updated_till_date=updated_till_date,
+
+        selected_contactable=contactable,
+        selected_not_contactable_reason=(
+            not_contactable_reason
+        ),
+        selected_remarks=remarks,
+
         trade_courses=trade_courses,
         course_statuses=course_statuses,
         sectors=sectors,
+
+        contactable_options=contactable_options,
+        not_contactable_reason_options=(
+            not_contactable_reason_options
+        ),
     )
 
 
@@ -471,6 +639,19 @@ def add_learner(college_id):
             flash("Learner with this Mobile No and Email Id combination already exists in the system.", "danger")
             return redirect(url_for("learners.add_learner", college_id=college_id))
 
+        contactable, not_contactable_reason, contactability_error = (
+            get_contactability_values(request.form)
+        )
+
+        if contactability_error:
+            flash(contactability_error, "danger")
+            return redirect(
+                url_for(
+                    "learners.add_learner",
+                    college_id=college.id,
+                )
+            )
+
         learner = Learner(
             college_id=college.id,
 
@@ -568,6 +749,11 @@ def add_learner(college_id):
             parent_guardian_name=request.form.get("parent_guardian_name", "").strip() or None,
             parent_guardian_contact_no=request.form.get("parent_guardian_contact_no", "").strip() or None,
 
+            contactable=contactable,
+            not_contactable_reason=not_contactable_reason,
+
+            remarks=request.form.get("remarks", "").strip() or None,
+
             created_by=current_user.id,
             updated_by=current_user.id,
         )
@@ -664,6 +850,8 @@ def add_learner(college_id):
         "district": get_master_options("district"),
         "registered_on_apprenticeship_portal": get_master_options("registered_on_apprenticeship_portal"),
         "cits_cts": get_master_options("cits_cts"),
+        "contactable": get_master_options("contactable"),
+        "not_contactable_reason": get_master_options("not_contactable_reason"),
     }
 
     return render_template(
@@ -794,6 +982,20 @@ def edit_learner(college_id, learner_id):
                 )
             )
 
+        contactable, not_contactable_reason, contactability_error = (
+            get_contactability_values(request.form)
+        )
+
+        if contactability_error:
+            flash(contactability_error, "danger")
+            return redirect(
+                url_for(
+                    "learners.edit_learner",
+                    college_id=college.id,
+                    learner_id=learner.id,
+                )
+            )
+
         learner.mobile_no = mobile_no
         learner.email_id = email_id
 
@@ -900,6 +1102,11 @@ def edit_learner(college_id, learner_id):
         learner.permanent_address_district = request.form.get("permanent_address_district", "").strip() or None
         learner.parent_guardian_name = request.form.get("parent_guardian_name", "").strip() or None
         learner.parent_guardian_contact_no = parent_guardian_contact_no
+
+        learner.contactable = contactable
+        learner.not_contactable_reason = not_contactable_reason
+
+        learner.remarks = request.form.get("remarks", "").strip() or None
 
         learner.updated_by = current_user.id
 
@@ -1018,6 +1225,8 @@ def edit_learner(college_id, learner_id):
         "evidence_type_self_employed_household_family": get_master_options("evidence_type_self_employed_household_family"),
         "state": get_master_options("state"),
         "district": get_master_options("district"),
+        "contactable": get_master_options("contactable"),
+        "not_contactable_reason": get_master_options("not_contactable_reason"),
     }
 
     evidence_files = (
@@ -1180,7 +1389,7 @@ def delete_learner(college_id, learner_id):
 
     permission = get_college_permission(college_id)
 
-    if not permission["can_delete"]:
+    if (current_user.has_role("placement")or not permission["can_delete"]):
         abort(403)
 
     old_value = {
@@ -1752,6 +1961,44 @@ def get_active_master_values(master_key):
     ).all()
 
     return {o.option_value for o in options}
+
+
+def get_contactability_values(form):
+    """Validate and normalize the learner contactability fields."""
+
+    contactable = form.get("contactable", "").strip() or None
+    not_contactable_reason = (
+        form.get("not_contactable_reason", "").strip() or None
+    )
+
+    contactable_values = get_active_master_values("contactable")
+    reason_values = get_active_master_values("not_contactable_reason")
+
+    if not contactable_values:
+        return (
+            None,
+            None,
+            "The Contactable master list has not been configured.",
+        )
+
+    if contactable and contactable not in contactable_values:
+        return None, None, "Please select a valid Contactable value."
+
+    # The reason is applicable only when Contactable is No.
+    if contactable != "No":
+        not_contactable_reason = None
+
+    if (
+        not_contactable_reason
+        and not_contactable_reason not in reason_values
+    ):
+        return (
+            None,
+            None,
+            "Please select a valid reason for not being contactable.",
+        )
+
+    return contactable, not_contactable_reason, None
 
 
 def validate_bulk_row(row_data, existing_combos_in_file):

@@ -118,18 +118,130 @@
       </select>
     </div>
 
-    <div class="col-md-2">
-      <button type="submit" class="btn btn-primary w-100">
-        Search
-      </button>
-    </div>
+    <div class="row g-2 align-items-end mt-2">
 
-    <div class="col-md-2">
-      <a href="{{ url_for('learners.college_learners', college_id=college.id) }}"
-         class="btn btn-secondary w-100">
-        Clear
-      </a>
-    </div>
+  <div class="col-md-3">
+    <label class="form-label">
+      Last Updated From Date
+    </label>
+
+    <input type="date"
+           name="updated_from_date"
+           class="form-control"
+           value="{{ selected_updated_from_date or '' }}">
+  </div>
+
+  <div class="col-md-3">
+    <label class="form-label">
+      Last Updated Till Date
+    </label>
+
+    <input type="date"
+           name="updated_till_date"
+           class="form-control"
+           value="{{ selected_updated_till_date or '' }}">
+  </div>
+
+  <div class="row g-2 align-items-end mt-2">
+
+  <!-- Contactable -->
+  <div class="col-md-3">
+    <label for="contactable_filter" class="form-label">
+      Contactable
+    </label>
+
+    <select
+      id="contactable_filter"
+      name="contactable"
+      class="form-select"
+    >
+      <option value="">All</option>
+
+      {% for opt in contactable_options %}
+        <option
+          value="{{ opt.option_value }}"
+          {% if selected_contactable == opt.option_value %}
+            selected
+          {% endif %}
+        >
+          {{ opt.option_label or opt.option_value }}
+        </option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <!-- Reason for Not Contactable -->
+  <div class="col-md-3">
+    <label
+      for="not_contactable_reason_filter"
+      class="form-label"
+    >
+      Reason for Not Contactable
+    </label>
+
+    <select
+      id="not_contactable_reason_filter"
+      name="not_contactable_reason"
+      class="form-select"
+    >
+      <option value="">All</option>
+
+      {% for opt in not_contactable_reason_options %}
+        <option
+          value="{{ opt.option_value }}"
+          {% if selected_not_contactable_reason
+                == opt.option_value %}
+            selected
+          {% endif %}
+        >
+          {{ opt.option_label or opt.option_value }}
+        </option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <!-- Remarks -->
+  <div class="col-md-3">
+    <label for="remarks_filter" class="form-label">
+      Remarks
+    </label>
+
+    <input
+      type="text"
+      id="remarks_filter"
+      name="remarks"
+      class="form-control"
+      placeholder="Search remarks"
+      value="{{ selected_remarks or '' }}"
+    >
+  </div>
+
+  <div class="col-md-2">
+    <button
+      type="submit"
+      class="btn btn-primary w-100"
+    >
+      Search
+    </button>
+  </div>
+
+  <div class="col-md-1">
+    <a
+      href="{{ url_for(
+        'learners.college_learners',
+        college_id=college.id
+      ) }}"
+      class="btn btn-secondary w-100"
+    >
+      Clear
+    </a>
+  </div>
+
+</div>
+
+</div>
+
+
 
   </div>
 
@@ -154,6 +266,10 @@
               <th>Course Status</th>
               <th>Batch Start Year</th>
               <th>Batch End Year</th>
+              <th>Contactable</th>
+              <th>Reason for Not Contactable</th>
+              <th>Remarks</th>
+              <th>Last Updated</th>
               
               <th style="width: 180px;">Action</th>
             </tr>
@@ -174,6 +290,35 @@
                 <td>{{ l.batch_start_year or "-" }}</td>
                 <td>{{ l.batch_end_year or "-" }}</td>
 
+                <td>{{ l.contactable or "-" }}</td>
+
+                <td>
+                  {% if l.contactable == "No" %}
+                    {{ l.not_contactable_reason or "-" }}
+                  {% else %}
+                    -
+                  {% endif %}
+                </td>
+
+                <td
+                  style="
+                    min-width: 220px;
+                    max-width: 350px;
+                    white-space: normal;
+                    word-break: break-word;
+                  "
+                >
+                  {{ l.remarks or "-" }}
+                </td>
+                <td>
+                      {% set last_updated = l.updated_at or l.created_at %}
+
+                      {% if last_updated %}
+                        {{ last_updated.strftime("%d-%m-%Y %I:%M %p") }}
+                      {% else %}
+                        -
+                      {% endif %}
+                </td>
 
                 <td>
                   {% if permission.can_edit %}

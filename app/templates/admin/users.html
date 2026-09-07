@@ -1,19 +1,332 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
+
 {% block content %}
+
 <h3>Users</h3>
-<form method="post" class="card card-body mb-4">
+
+<!-- ================================================ -->
+<!-- Create User Form -->
+<!-- ================================================ -->
+<form method="POST" class="card card-body mb-4">
+
+  <h5 class="card-title mb-3">
+    Create User
+  </h5>
+
   <div class="row g-2">
-    <div class="col"><input name="full_name" class="form-control" placeholder="Full name" required></div>
-    <div class="col"><input name="email" type="email" class="form-control" placeholder="Email" required></div>
-    <div class="col"><input name="password" type="password" class="form-control" placeholder="Password" required></div>
-    <div class="col"><select name="role_id" class="form-select">{% for r in roles %}<option value="{{ r.id }}">{{ r.role_name }}</option>{% endfor %}</select></div>
-    <div class="col"><input name="start_date" type="date" class="form-control"></div>
-    <div class="col"><input name="expiry_date" type="date" class="form-control"></div>
-    <div class="col-auto form-check mt-2"><input name="is_active" class="form-check-input" type="checkbox" checked> Active</div>
-    <div class="col-auto"><button class="btn btn-primary">Create</button></div>
+
+    <div class="col-md-3">
+      <label class="form-label">
+        Full Name
+      </label>
+
+      <input
+        type="text"
+        name="full_name"
+        class="form-control"
+        placeholder="Full name"
+        required
+      >
+    </div>
+
+    <div class="col-md-3">
+      <label class="form-label">
+        Email
+      </label>
+
+      <input
+        type="email"
+        name="email"
+        class="form-control"
+        placeholder="Email"
+        required
+      >
+    </div>
+
+    <div class="col-md-3">
+      <label class="form-label">
+        Password
+      </label>
+
+      <input
+        type="password"
+        name="password"
+        class="form-control"
+        placeholder="Password"
+        required
+      >
+    </div>
+
+    <div class="col-md-3">
+      <label class="form-label">
+        Role
+      </label>
+
+      <select
+        name="role_id"
+        class="form-select"
+        required
+      >
+        <option value="">
+          -- Select Role --
+        </option>
+
+        {% for role in roles %}
+          <option value="{{ role.id }}">
+            {{ role.role_name }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="col-md-3">
+      <label class="form-label">
+        Start Date
+      </label>
+
+      <input
+        type="date"
+        name="start_date"
+        class="form-control"
+      >
+    </div>
+
+    <div class="col-md-3">
+      <label class="form-label">
+        Expiry Date
+      </label>
+
+      <input
+        type="date"
+        name="expiry_date"
+        class="form-control"
+      >
+    </div>
+
+    <div class="col-md-2">
+      <div class="form-check mt-4 pt-2">
+        <input
+          type="checkbox"
+          id="is_active"
+          name="is_active"
+          class="form-check-input"
+          checked
+        >
+
+        <label
+          for="is_active"
+          class="form-check-label"
+        >
+          Active
+        </label>
+      </div>
+    </div>
+
+    <div class="col-md-2 d-flex align-items-end">
+      <button
+        type="submit"
+        class="btn btn-primary w-100"
+      >
+        Create
+      </button>
+    </div>
+
   </div>
+
 </form>
-<table class="table table-bordered table-sm"><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Active</th><th></th></tr></thead><tbody>
-{% for u in users %}<tr><td>{{ u.full_name }}</td><td>{{ u.email }}</td><td>{{ u.role.role_name }}</td><td>{{ u.is_active }}</td><td><a class="btn btn-sm btn-outline-primary" href="{{ url_for('admin.edit_user', user_id=u.id) }}">Edit</a></td></tr>{% endfor %}
-</tbody></table>
+
+
+<!-- ================================================ -->
+<!-- User Search Form -->
+<!-- ================================================ -->
+<form method="GET" class="card card-body mb-4">
+
+  <h5 class="card-title mb-3">
+    Search Users
+  </h5>
+
+  <div class="row g-2 align-items-end">
+
+    <!-- Name filter -->
+    <div class="col-md-3">
+      <label for="name_filter" class="form-label">
+        Name
+      </label>
+
+      <input
+        type="text"
+        id="name_filter"
+        name="name"
+        class="form-control"
+        placeholder="Search by name"
+        value="{{ selected_name or '' }}"
+      >
+    </div>
+
+    <!-- Email filter -->
+    <div class="col-md-3">
+      <label for="email_filter" class="form-label">
+        Email
+      </label>
+
+      <input
+        type="text"
+        id="email_filter"
+        name="email"
+        class="form-control"
+        placeholder="Search by email"
+        value="{{ selected_email or '' }}"
+      >
+    </div>
+
+    <!-- Role filter -->
+    <div class="col-md-3">
+      <label for="role_filter" class="form-label">
+        Role
+      </label>
+
+      <select
+        id="role_filter"
+        name="role_id"
+        class="form-select"
+      >
+        <option value="">
+          All Roles
+        </option>
+
+        {% for role in roles %}
+          <option
+            value="{{ role.id }}"
+            {% if selected_role_id|string == role.id|string %}
+              selected
+            {% endif %}
+          >
+            {{ role.role_name }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <!-- Search button -->
+    <div class="col-md-2">
+      <button
+        type="submit"
+        class="btn btn-primary w-100"
+      >
+        Search
+      </button>
+    </div>
+
+    <!-- Clear button -->
+    <div class="col-md-1">
+      <a
+        href="{{ url_for('admin.users') }}"
+        class="btn btn-secondary w-100"
+      >
+        Clear
+      </a>
+    </div>
+
+  </div>
+
+</form>
+
+
+<!-- ================================================ -->
+<!-- User Records -->
+<!-- ================================================ -->
+<div class="card">
+  <div class="card-body">
+
+    <div class="d-flex justify-content-between mb-3">
+      <h5 class="card-title mb-0">
+        User Records
+      </h5>
+
+      <span class="text-muted">
+        {{ users|length }} record(s) found
+      </span>
+    </div>
+
+    {% if users %}
+
+      <div class="table-responsive">
+
+        <table
+          class="table table-bordered table-striped table-sm align-middle"
+        >
+
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Active</th>
+              <th style="width: 100px;">
+                Action
+              </th>
+            </tr>
+          </thead>
+
+          <tbody>
+
+            {% for user in users %}
+
+              <tr>
+                <td>
+                  {{ user.full_name }}
+                </td>
+
+                <td>
+                  {{ user.email }}
+                </td>
+
+                <td>
+                  {{ user.role.role_name if user.role else "-" }}
+                </td>
+
+                <td>
+                  {% if user.is_active %}
+                    <span class="badge bg-success">
+                      Yes
+                    </span>
+                  {% else %}
+                    <span class="badge bg-secondary">
+                      No
+                    </span>
+                  {% endif %}
+                </td>
+
+                <td>
+                  <a
+                    href="{{ url_for(
+                      'admin.edit_user',
+                      user_id=user.id
+                    ) }}"
+                    class="btn btn-sm btn-outline-primary"
+                  >
+                    Edit
+                  </a>
+                </td>
+              </tr>
+
+            {% endfor %}
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    {% else %}
+
+      <div class="alert alert-info mb-0">
+        No users found matching the selected search criteria.
+      </div>
+
+    {% endif %}
+
+  </div>
+</div>
+
 {% endblock %}

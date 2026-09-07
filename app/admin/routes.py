@@ -37,23 +37,109 @@ def dashboard():
 @login_required
 @admin_required
 def users():
-    roles = Role.query.all()
+    roles = Role.query.order_by(Role.role_name.asc()).all()
+
+    # -----------------------------------------------------
+    # Create user
+    # -----------------------------------------------------
     if request.method == "POST":
         user = User(
-            full_name=request.form["full_name"],
+            full_name=request.form["full_name"].strip(),
             email=request.form["email"].strip().lower(),
-            password_hash=generate_password_hash(request.form["password"]),
+            password_hash=generate_password_hash(
+                request.form["password"]
+            ),
             role_id=int(request.form["role_id"]),
             start_date=request.form.get("start_date") or None,
             expiry_date=request.form.get("expiry_date") or None,
             is_active=bool(request.form.get("is_active")),
         )
+
         db.session.add(user)
         db.session.commit()
-        log_action("CREATE_USER", "users", user.id, new_value={"email": user.email})
+
+        log_action(
+            "CREATE_USER",
+            "users",
+            user.id,
+            new_value={
+                "email": user.email,
+            },
+        )
+
         flash("User created", "success")
-        return redirect(url_for("admin.users"))
-    return render_template("admin/users.html", users=User.query.order_by(User.id.desc()).all(), roles=roles)
+
+        return redirect(
+            url_for("admin.users")
+        )
+
+    # -----------------------------------------------------
+    # Search filters
+    # -----------------------------------------------------
+    name_filter = request.args.get(
+        "name",
+        "",
+    ).strip()
+
+    email_filter = request.args.get(
+        "email",
+        "",
+    ).strip()
+
+    role_filter = request.args.get(
+        "role_id",
+        "",
+    ).strip()
+
+    users_query = User.query
+
+    # Partial name search
+    if name_filter:
+        users_query = users_query.filter(
+            User.full_name.like(
+                f"%{name_filter}%"
+            )
+        )
+
+    # Partial email search
+    if email_filter:
+        users_query = users_query.filter(
+            User.email.like(
+                f"%{email_filter}%"
+            )
+        )
+
+    # Exact role search
+    if role_filter:
+        try:
+            selected_role_id = int(role_filter)
+
+            users_query = users_query.filter(
+                User.role_id == selected_role_id
+            )
+
+        except ValueError:
+            flash(
+                "Please select a valid role.",
+                "danger",
+            )
+
+            role_filter = ""
+
+    users_list = (
+        users_query
+        .order_by(User.id.desc())
+        .all()
+    )
+
+    return render_template(
+        "admin/users.html",
+        users=users_list,
+        roles=roles,
+        selected_name=name_filter,
+        selected_email=email_filter,
+        selected_role_id=role_filter,
+    )
 
 @admin_bp.route("/users/<int:user_id>/edit", methods=["GET", "POST"])
 @login_required

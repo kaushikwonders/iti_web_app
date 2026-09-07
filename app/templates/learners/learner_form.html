@@ -211,6 +211,8 @@
           <div id="parent_guardian_contact_no_feedback" class="invalid-feedback"></div>
         </div>
 
+        
+
       </div>
 
 
@@ -973,6 +975,84 @@
         </div>
 
         <div class="row mb-3">
+          <div class="col-md-4">
+            <label for="contactable" class="form-label">
+              Contactable
+            </label>
+
+            <select
+              id="contactable"
+              name="contactable"
+              class="form-select"
+            >
+              <option value="">-- Select --</option>
+
+              {% for opt in dropdowns.contactable %}
+                <option
+                  value="{{ opt.option_value }}"
+                  {% if learner
+                        and learner.contactable == opt.option_value %}
+                    selected
+                  {% endif %}
+                >
+                  {{ opt.option_label or opt.option_value }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div
+            id="not-contactable-reason-container"
+            class="col-md-8 d-none"
+          >
+            <label
+              for="not_contactable_reason"
+              class="form-label"
+            >
+              If not Contactable, Reason
+            </label>
+
+            <select
+              id="not_contactable_reason"
+              name="not_contactable_reason"
+              class="form-select"
+              disabled
+            >
+              <option value="">-- Select Reason --</option>
+
+              {% for opt in dropdowns.not_contactable_reason %}
+                <option
+                  value="{{ opt.option_value }}"
+                  {% if learner
+                        and learner.not_contactable_reason
+                            == opt.option_value %}
+                    selected
+                  {% endif %}
+                >
+                  {{ opt.option_label or opt.option_value }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+  <div class="col-md-12">
+    <label for="remarks" class="form-label">
+      Remarks
+    </label>
+
+    <textarea
+      id="remarks"
+      name="remarks"
+      class="form-control"
+      rows="4"
+      placeholder="Enter remarks"
+    >{{ learner.remarks if learner and learner.remarks else '' }}</textarea>
+  </div>
+</div>
+
+        <div class="row mb-3">
           <div class="col-md-3">
             <label class="form-label">Status After 3 Months</label>
             <select name="status_after_3_months" class="form-select">
@@ -1669,6 +1749,42 @@ function attachPhoneValidation(input) {
   });
 }
 
+function updateContactabilityReason() {
+    const contactableField = document.getElementById(
+        "contactable"
+    );
+
+    const reasonContainer = document.getElementById(
+        "not-contactable-reason-container"
+    );
+
+    const reasonField = document.getElementById(
+        "not_contactable_reason"
+    );
+
+    if (
+        !contactableField ||
+        !reasonContainer ||
+        !reasonField
+    ) {
+        return;
+    }
+
+    const isNotContactable =
+        contactableField.value === "No";
+
+    reasonContainer.classList.toggle(
+        "d-none",
+        !isNotContactable
+    );
+
+    reasonField.disabled = !isNotContactable;
+
+    if (!isNotContactable) {
+        reasonField.value = "";
+    }
+}
+
 document.addEventListener("DOMContentLoaded", function () {
   const statusSelect = document.getElementById("course_completion_status");
   const selfEmploymentTypeSelect = document.getElementById("self_employment_type");
@@ -1688,6 +1804,17 @@ document.addEventListener("DOMContentLoaded", function () {
   const jobLocationDistrictInput = document.getElementById(
     "job_location_district"
   );
+  const contactableField = document.getElementById(
+    "contactable"
+  );
+  if (contactableField) {
+    contactableField.addEventListener(
+        "change",
+        updateContactabilityReason
+    );
+
+    updateContactabilityReason();
+  }
 
   if (jobLocationDistrictInput) {
     jobLocationDistrictInput.addEventListener(
